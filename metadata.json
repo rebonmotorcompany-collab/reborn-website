@@ -1,0 +1,6 @@
+{
+  "name": "Rebon EV - Premium Electric Motorcycles",
+  "description": "An ultra-professional, high-tech digital showroom, performance calculator, and B2B dealership hub for Rebon EV, inspired by premium electric motorcycle engineering.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
