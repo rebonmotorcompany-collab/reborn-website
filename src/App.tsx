@@ -1677,6 +1677,47 @@ export default function App() {
                   />
                   <div>
                     <h4 className="text-white font-bold">{testimonials[activeReviewIndex].author}</h4>
+                    <p className="text-xs text-gray-400">{testimonials[activeReviewIndex].role} &bull; <strong className="text-[#00f5ff]">{testimonials[activeReviewIndex].location}</strong></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Slider Switch Toggles */}
+            <div className="flex justify-center space-x-2 mt-6">
+              {testimonials.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveReviewIndex(i)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                    activeReviewIndex === i ? "bg-[#00f5ff] w-6" : "bg-gray-700 hover:bg-gray-500"
+                  }`}
+                  aria-label={`Show testimonial ${i+1}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* ----------------- "FEATURED IN" PRESS BAR ----------------- */}
+          <div className="mt-24 border-t border-gray-900 pt-16">
+            <p className="text-center text-[10px] font-mono tracking-widest text-gray-500 uppercase mb-8">GLOBAL PRESS & ACCLAIM</p>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto items-center">
+              {featuredInLogos.map((logo, idx) => (
+                <div key={idx} className="bg-gray-950/40 p-4 rounded-xl border border-gray-900 text-center relative group overflow-hidden cursor-help">
+                  <span className="font-display font-extrabold text-lg sm:text-xl text-gray-500 group-hover:text-white transition-colors duration-300 tracking-wider">
+                    {logo.text}
+                  </span>
+                  
+                  {/* Tooltip quote */}
+                  <div className="absolute inset-0 bg-[#090b0e] p-2 flex items-center justify-center translate-y-full group-hover:translate-y-0 transition-all duration-300 border border-cyan-500/30 rounded-xl">
+                    <p className="text-[10px] italic text-gray-300 leading-tight">
+                      {logo.quote}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
