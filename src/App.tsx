@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import PrivacyPolicy from "./PrivacyPolicy";
+import PlaceholderPage from "./PlaceholderPage";
 import { 
   Zap, 
   Battery, 
@@ -55,6 +57,39 @@ interface Testimonial {
 }
 
 export default function App() {
+  // --- Routing States & Logic ---
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const navigateTo = (path: string) => {
+    window.history.pushState({}, "", path);
+    setCurrentPath(path);
+    window.scrollTo(0, 0);
+  };
+
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string, tabName?: "models" | "about" | "b2b" | "reviews") => {
+    e.preventDefault();
+    if (tabName) setActiveTab(tabName);
+    if (window.location.pathname !== "/") {
+      window.history.pushState({}, "", "/");
+      setCurrentPath("/");
+      setTimeout(() => {
+        const el = document.getElementById(targetId);
+        el?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else {
+      const el = document.getElementById(targetId);
+      el?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   // --- States ---
   const [activeTab, setActiveTab] = useState<"models" | "about" | "b2b" | "reviews">("models");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -355,7 +390,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigateTo("/")}>
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#00f5ff] to-[#0072ff] flex items-center justify-center shadow-lg shadow-[#00f5ff]/20">
                 <Zap className="w-6 h-6 text-black stroke-[2.5]" />
               </div>
@@ -369,29 +404,29 @@ export default function App() {
             <div className="hidden md:flex items-center space-x-8">
               <a 
                 href="#models" 
-                onClick={() => setActiveTab("models")}
-                className={`font-display text-sm uppercase tracking-wider transition-colors hover:text-[#00f5ff] ${activeTab === "models" ? "text-[#00f5ff] font-medium" : "text-gray-400"}`}
+                onClick={(e) => handleAnchorClick(e, "models", "models")}
+                className={`font-display text-sm uppercase tracking-wider transition-colors hover:text-[#00f5ff] ${activeTab === "models" && currentPath === "/" ? "text-[#00f5ff] font-medium" : "text-gray-400"}`}
               >
                 Models
               </a>
               <a 
                 href="#about" 
-                onClick={() => setActiveTab("about")}
-                className={`font-display text-sm uppercase tracking-wider transition-colors hover:text-[#00f5ff] ${activeTab === "about" ? "text-[#00f5ff] font-medium" : "text-gray-400"}`}
+                onClick={(e) => handleAnchorClick(e, "about", "about")}
+                className={`font-display text-sm uppercase tracking-wider transition-colors hover:text-[#00f5ff] ${activeTab === "about" && currentPath === "/" ? "text-[#00f5ff] font-medium" : "text-gray-400"}`}
               >
                 Mission & Impact
               </a>
               <a 
                 href="#dealers" 
-                onClick={() => setActiveTab("b2b")}
-                className={`font-display text-sm uppercase tracking-wider transition-colors hover:text-[#00f5ff] ${activeTab === "b2b" ? "text-[#00f5ff] font-medium" : "text-gray-400"}`}
+                onClick={(e) => handleAnchorClick(e, "dealers", "b2b")}
+                className={`font-display text-sm uppercase tracking-wider transition-colors hover:text-[#00f5ff] ${activeTab === "b2b" && currentPath === "/" ? "text-[#00f5ff] font-medium" : "text-gray-400"}`}
               >
                 Become a Partner
               </a>
               <a 
                 href="#reviews" 
-                onClick={() => setActiveTab("reviews")}
-                className={`font-display text-sm uppercase tracking-wider transition-colors hover:text-[#00f5ff] ${activeTab === "reviews" ? "text-[#00f5ff] font-medium" : "text-gray-400"}`}
+                onClick={(e) => handleAnchorClick(e, "reviews", "reviews")}
+                className={`font-display text-sm uppercase tracking-wider transition-colors hover:text-[#00f5ff] ${activeTab === "reviews" && currentPath === "/" ? "text-[#00f5ff] font-medium" : "text-gray-400"}`}
               >
                 Testimonials
               </a>
@@ -436,28 +471,28 @@ export default function App() {
           <div className="md:hidden bg-[#0c0e12] border-b border-gray-800 px-4 pt-2 pb-6 space-y-3">
             <a 
               href="#models" 
-              onClick={() => { setMobileMenuOpen(false); setActiveTab("models"); }}
+              onClick={(e) => { setMobileMenuOpen(false); handleAnchorClick(e, "models", "models"); }}
               className="block px-3 py-2 rounded-md text-base font-semibold text-gray-300 hover:text-white hover:bg-gray-900"
             >
               Models
             </a>
             <a 
               href="#about" 
-              onClick={() => { setMobileMenuOpen(false); setActiveTab("about"); }}
+              onClick={(e) => { setMobileMenuOpen(false); handleAnchorClick(e, "about", "about"); }}
               className="block px-3 py-2 rounded-md text-base font-semibold text-gray-300 hover:text-white hover:bg-gray-900"
             >
               Mission & Impact
             </a>
             <a 
               href="#dealers" 
-              onClick={() => { setMobileMenuOpen(false); setActiveTab("b2b"); }}
+              onClick={(e) => { setMobileMenuOpen(false); handleAnchorClick(e, "dealers", "b2b"); }}
               className="block px-3 py-2 rounded-md text-base font-semibold text-gray-300 hover:text-white hover:bg-gray-900"
             >
               Dealership Portal (B2B)
             </a>
             <a 
               href="#reviews" 
-              onClick={() => { setMobileMenuOpen(false); setActiveTab("reviews"); }}
+              onClick={(e) => { setMobileMenuOpen(false); handleAnchorClick(e, "reviews", "reviews"); }}
               className="block px-3 py-2 rounded-md text-base font-semibold text-gray-300 hover:text-white hover:bg-gray-900"
             >
               Testimonials
@@ -1642,47 +1677,6 @@ export default function App() {
                   />
                   <div>
                     <h4 className="text-white font-bold">{testimonials[activeReviewIndex].author}</h4>
-                    <p className="text-xs text-gray-400">{testimonials[activeReviewIndex].role} &bull; <strong className="text-[#00f5ff]">{testimonials[activeReviewIndex].location}</strong></p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Slider Switch Toggles */}
-            <div className="flex justify-center space-x-2 mt-6">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveReviewIndex(i)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                    activeReviewIndex === i ? "bg-[#00f5ff] w-6" : "bg-gray-700 hover:bg-gray-500"
-                  }`}
-                  aria-label={`Show testimonial ${i+1}`}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* ----------------- "FEATURED IN" PRESS BAR ----------------- */}
-          <div className="mt-24 border-t border-gray-900 pt-16">
-            <p className="text-center text-[10px] font-mono tracking-widest text-gray-500 uppercase mb-8">GLOBAL PRESS & ACCLAIM</p>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto items-center">
-              {featuredInLogos.map((logo, idx) => (
-                <div key={idx} className="bg-gray-950/40 p-4 rounded-xl border border-gray-900 text-center relative group overflow-hidden cursor-help">
-                  <span className="font-display font-extrabold text-lg sm:text-xl text-gray-500 group-hover:text-white transition-colors duration-300 tracking-wider">
-                    {logo.text}
-                  </span>
-                  
-                  {/* Tooltip quote */}
-                  <div className="absolute inset-0 bg-[#090b0e] p-2 flex items-center justify-center translate-y-full group-hover:translate-y-0 transition-all duration-300 border border-cyan-500/30 rounded-xl">
-                    <p className="text-[10px] italic text-gray-300 leading-tight">
-                      {logo.quote}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
         </div>
@@ -1820,10 +1814,11 @@ export default function App() {
           <div>
             <p>&copy; 2026 Rebon Motor Company GmbH. All rights reserved. Frankfurt Assembly Corridor, Germany.</p>
           </div>
-          <div className="flex space-x-6">
-            <a href="#terms" className="hover:text-gray-400 transition-colors">Privacy Charter</a>
-            <a href="#terms" className="hover:text-gray-400 transition-colors">Warranty Disclaimers</a>
-            <a href="#terms" className="hover:text-gray-400 transition-colors">EU EV Regulations</a>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center sm:justify-end">
+            <a href="/privacy-policy" onClick={(e) => { e.preventDefault(); navigateTo("/privacy-policy"); }} className={`hover:text-[#00f5ff] transition-colors ${currentPath === "/privacy-policy" ? "text-[#00f5ff]" : ""}`}>Privacy Policy</a>
+            <a href="/terms" onClick={(e) => { e.preventDefault(); navigateTo("/terms"); }} className={`hover:text-[#00f5ff] transition-colors ${currentPath === "/terms" ? "text-[#00f5ff]" : ""}`}>Terms & Conditions</a>
+            <a href="/cookie-policy" onClick={(e) => { e.preventDefault(); navigateTo("/cookie-policy"); }} className={`hover:text-[#00f5ff] transition-colors ${currentPath === "/cookie-policy" ? "text-[#00f5ff]" : ""}`}>Cookie Policy</a>
+            <a href="/data-deletion" onClick={(e) => { e.preventDefault(); navigateTo("/data-deletion"); }} className={`hover:text-[#00f5ff] transition-colors ${currentPath === "/data-deletion" ? "text-[#00f5ff]" : ""}`}>Data Deletion</a>
           </div>
         </div>
       </footer>
