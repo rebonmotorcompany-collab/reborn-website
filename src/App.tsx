@@ -1748,20 +1748,20 @@ export default function App() {
               <span className="font-display font-bold text-lg text-white tracking-widest uppercase">REBON EV</span>
             </div>
             <p className="text-xs text-gray-500 leading-relaxed max-w-xs">
-              Rebon Motor Company represents high-performance electric motor engineering, carbon-neutral production pipelines, and automated cloud dealerships. Frankfurt Assembly Hub.
+              Rebon Motor Company represents high-performance electric motor engineering, carbon-neutral production pipelines, and automated cloud dealerships. Bahawalpur Headquarters.
             </p>
             <div className="space-y-2 text-xs">
               <div className="flex items-center space-x-2 text-gray-500">
                 <MapPin className="w-4 h-4 text-[#00f5ff]" />
-                <span>Assembly Plant II, Frankfurt Tech Corridor, Germany</span>
+                <span>Army Market, Near Punjab Bank, Airport Road, Bahawalpur, Punjab, Pakistan</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-500">
                 <Phone className="w-4 h-4 text-[#00f5ff]" />
-                <span>+49 69 9874 5212 (B2B Global Support)</span>
+                <span>0323-6659451</span>
               </div>
               <div className="flex items-center space-x-2 text-gray-500">
                 <Mail className="w-4 h-4 text-[#00f5ff]" />
-                <span>corporate@rebonmotorcompany.com</span>
+                <span>support@rebonmotorcompany.com.pk</span>
               </div>
             </div>
           </div>
@@ -1865,7 +1865,7 @@ export default function App() {
         {/* Legal copy */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-600 space-y-4 sm:space-y-0">
           <div>
-            <p>&copy; 2026 Rebon Motor Company GmbH. All rights reserved. Frankfurt Assembly Corridor, Germany.</p>
+            <p>&copy; 2026 Rebon Motor Company. All rights reserved. Bahawalpur, Pakistan.</p>
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center sm:justify-end">
             <a href="/privacy-policy" onClick={(e) => { e.preventDefault(); navigateTo("/privacy-policy"); }} className={`hover:text-[#00f5ff] transition-colors ${currentPath === "/privacy-policy" ? "text-[#00f5ff]" : ""}`}>Privacy Policy</a>
