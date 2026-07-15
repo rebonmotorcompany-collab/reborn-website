@@ -18,7 +18,7 @@ export default function Captcha({ moduleKey = 'general' }: CaptchaProps) {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/captcha?module=${moduleKey}`, {
+      const res = await fetch(`/api/security-check?t=${moduleKey}`, {
         cache: 'no-store'
       })
       
