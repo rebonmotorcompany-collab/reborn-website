@@ -6,8 +6,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "npx prisma db push && npx prisma db seed && next build",
-    "postbuild": "cp .env.production .env && mkdir -p public/_next/static public/src/assets && cp -r .next/static/* public/_next/static/ && cp -r src/assets/* public/src/assets/ || true",
-    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
