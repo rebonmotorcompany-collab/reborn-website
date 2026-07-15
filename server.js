@@ -4,13 +4,12 @@ import { parse } from 'url';
 import dotenv from 'dotenv';
 import { execSync } from 'child_process';
 
-// Load .env first (postbuild copies .env.production to .env in production)
-dotenv.config();
-
-const dev = process.env.NODE_ENV === 'development';
+// Force production mode for Hostinger
+process.env.NODE_ENV = 'production';
+const dev = false;
 
 // Load the appropriate environment variables based on the environment
-dotenv.config({ path: dev ? '.env.development' : '.env.production' });
+dotenv.config({ path: '.env.production' });
 
 // Safely update database schema and seed data (runs before server starts)
 try {
