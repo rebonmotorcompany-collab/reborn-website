@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
 const dev = process.env.NODE_ENV !== 'production';
 
 // Load the appropriate environment variables based on the environment
-dotenv.config({ path: dev ? '.developer.env' : '.production.env' });
+dotenv.config({ path: dev ? '.env.development' : '.env.production' });
 
 // Safely update database schema and seed data (runs before server starts)
 try {

@@ -29,9 +29,7 @@ yarn-error.log*
 # local env files
 .env
 .env*.local
-.env.development
 .env.test
-.env.production
 
 # Keep example env
 !.env.example
