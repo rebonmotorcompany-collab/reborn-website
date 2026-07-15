@@ -9,7 +9,7 @@ process.env.NODE_ENV = 'production';
 const dev = false;
 
 // Load the appropriate environment variables based on the environment
-dotenv.config({ path: '.env.production' });
+dotenv.config({ path: '.env' });
 
 // Safely update database schema and seed data (runs before server starts)
 try {

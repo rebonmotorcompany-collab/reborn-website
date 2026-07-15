@@ -10,8 +10,6 @@ interface PremiumFeaturesProps {
 export const PremiumFeatures: React.FC<PremiumFeaturesProps> = ({ lang }) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [loadingProgress, setLoadingProgress] = useState(0);
 
   // Chat conversation state
   const [messages, setMessages] = useState<any[]>([
@@ -28,21 +26,7 @@ export const PremiumFeatures: React.FC<PremiumFeaturesProps> = ({ lang }) => {
     { label: 'Dealer in my city?', text: 'Where can I find an authorized showroom?' }
   ];
 
-  // Loader timer
-  useEffect(() => {
-    const progressTimer = setInterval(() => {
-      setLoadingProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressTimer);
-          setTimeout(() => setLoading(false), 300);
-          return 100;
-        }
-        return prev + 4;
-      });
-    }, 40);
 
-    return () => clearInterval(progressTimer);
-  }, []);
 
   // Show scroll top on scroll
   useEffect(() => {
@@ -85,40 +69,7 @@ export const PremiumFeatures: React.FC<PremiumFeaturesProps> = ({ lang }) => {
 
   return (
     <>
-      {/* Premium Entrance Pre-Loader Screen */}
-      {loading && (
-        <div
-          className="fixed inset-0 z-50 bg-neutral-950 flex flex-col items-center justify-center text-white p-6 transition-opacity duration-300"
-        >
-          <div className="text-center max-w-sm space-y-6">
-            {/* Animated Glowing Title logo indicator with Tailwind pulse */}
-            <div
-              className="text-4xl font-black font-display tracking-tight text-white flex justify-center animate-pulse"
-            >
-              <span>REBON </span>
-              <span className="text-[#D72626] ml-2">MOTOR</span>
-            </div>
 
-            {/* Progress Bar container */}
-            <div className="space-y-2">
-              <div className="w-full h-1 bg-neutral-900 rounded-full overflow-hidden">
-                <div
-                  style={{ width: `${loadingProgress}%` }}
-                  className="h-full bg-[#D72626] rounded-full transition-all duration-75"
-                />
-              </div>
-              <div className="flex justify-between items-center text-[10px] text-neutral-500 font-mono">
-                <span>PRE-LOADING DESIGN SYSTEMS...</span>
-                <span>{loadingProgress}%</span>
-              </div>
-            </div>
-
-            <div className="text-[10px] text-neutral-600 font-mono tracking-widest uppercase">
-              POWERING THE FUTURE OF MOBILITY
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Floating Action Buttons Area Bottom Right */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
