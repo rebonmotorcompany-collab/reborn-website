@@ -29,7 +29,7 @@ export default function Captcha({ moduleKey = 'general' }: CaptchaProps) {
           setError(data.error || 'Too many attempts. Locked out.')
           setEnabled(false) // Disable interaction while locked
         } else {
-          setError('Failed to load CAPTCHA')
+          setError(data.details ? `Server Error: ${data.details}` : 'Failed to load CAPTCHA')
         }
         setLoading(false)
         return

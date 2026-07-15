@@ -33,7 +33,7 @@ export async function GET(request: Request) {
 
     console.error('Failed to generate CAPTCHA:', error)
     return NextResponse.json(
-      { error: 'Failed to generate CAPTCHA' },
+      { error: 'Failed to generate CAPTCHA', details: error.message || String(error) },
       { status: 500 }
     )
   }
