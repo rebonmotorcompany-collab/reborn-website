@@ -8,15 +8,10 @@ interface PremiumFeaturesProps {
 }
 
 export const PremiumFeatures: React.FC<PremiumFeaturesProps> = ({ lang }) => {
-  const [mounted, setMounted] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingProgress, setLoadingProgress] = useState(0);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Chat conversation state
   const [messages, setMessages] = useState<any[]>([
@@ -87,8 +82,6 @@ export const PremiumFeatures: React.FC<PremiumFeaturesProps> = ({ lang }) => {
       setMessages(prev => [...prev, botReply]);
     }, 1000);
   };
-
-  if (!mounted) return null;
 
   return (
     <>
