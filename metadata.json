@@ -1,6 +1,6 @@
 {
-  "name": "Rebon EV - Premium Electric Motorcycles",
-  "description": "An ultra-professional, high-tech digital showroom, performance calculator, and B2B dealership hub for Rebon EV, inspired by premium electric motorcycle engineering.",
+  "name": "Rebon Motor Company",
+  "description": "Premium, modern corporate website for Rebon Motor Company (RMC) - Powering the future of mobility with high-performance electric and petrol motorcycles in Pakistan.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

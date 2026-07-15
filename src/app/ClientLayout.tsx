@@ -1,54 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
-import { About } from './components/About';
-import { Products } from './components/Products';
-import { Technology } from './components/Technology';
-import { Manufacturing } from './components/Manufacturing';
-import { WhyChooseUs } from './components/WhyChooseUs';
-import { DealerNetwork } from './components/DealerNetwork';
-import { Services } from './components/Services';
-import { Reviews } from './components/Reviews';
-import { NewsBlog } from './components/NewsBlog';
-import { FAQ } from './components/FAQ';
-import { Contact } from './components/Contact';
-import { Footer } from './components/Footer';
-import { PremiumFeatures } from './components/PremiumFeatures';
-import PrivacyPolicy from './components/PrivacyPolicy';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { X, CheckCircle, Send, ShieldCheck } from 'lucide-react';
+'use client';
 
-export default function App() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark'); // Defaulting to dark for premium automotive feel
-  const [lang, setLang] = useState<string>('en'); // Default to English
+import React, { useState, useEffect } from 'react';
+import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
+import { PremiumFeatures } from '@/components/PremiumFeatures';
+import { AppProvider, useAppContext } from '@/context/AppContext';
+import { AnimatePresence, motion } from 'motion/react';
+import { X, CheckCircle, Send, ShieldCheck } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+
+function ClientLayoutInner({ children }: { children: React.ReactNode }) {
+  const { theme, setTheme, lang, setLang, openQuoteModal } = useAppContext();
+  const pathname = usePathname();
+  
+  // Need to duplicate quote modal state from App.tsx since it's tightly coupled to the layout
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [selectedProductForQuote, setSelectedProductForQuote] = useState('');
-  
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Form states inside quote modal
   const [custName, setCustName] = useState('');
   const [custEmail, setCustEmail] = useState('');
   const [custPhone, setCustPhone] = useState('');
   const [custCity, setCustCity] = useState('');
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
 
-  // Sync theme with HTML document class
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [theme]);
-
-  const openQuoteModal = (productName?: string) => {
-    setSelectedProductForQuote(productName || 'Rebon E-Volt X');
-    setQuoteModalOpen(true);
-  };
+  const isPortalRoute = pathname?.startsWith('/dashboard') || 
+                        pathname?.startsWith('/company') || 
+                        pathname?.startsWith('/dealer') || 
+                        pathname?.startsWith('/unauthorized');
 
   const handleQuoteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,107 +38,34 @@ export default function App() {
       setCustEmail('');
       setCustPhone('');
       setCustCity('');
-    }, 2000);
+    }, 2500);
   };
-
-  const handleScrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 80;
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = element.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-      
-      if (location.pathname !== '/') {
-        navigate('/');
-        // allow React to render the home page before scrolling
-        setTimeout(() => {
-          const el = document.getElementById(id);
-          if (el) {
-            window.scrollTo({
-              top: el.getBoundingClientRect().top - document.body.getBoundingClientRect().top - offset,
-              behavior: 'smooth'
-            });
-          }
-        }, 100);
-      } else {
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    } else if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        const el = document.getElementById(id);
-        if (el) {
-          window.scrollTo({
-            top: el.getBoundingClientRect().top - document.body.getBoundingClientRect().top - 80,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
-    }
-  };
+  
+  if (isPortalRoute) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans transition-colors duration-300">
+        <main className="relative">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans transition-colors duration-300">
-      
-      {/* Premium Glass Header Navigation */}
       <Navbar
         theme={theme}
         setTheme={setTheme}
         lang={lang}
         setLang={setLang}
-        openQuoteModal={openQuoteModal}
+        openQuoteModal={() => { setQuoteModalOpen(true); setSelectedProductForQuote('Rebon E-Volt X'); }}
       />
 
-      <Routes>
-        <Route path="/" element={
-          <>
-            <main className="relative">
-              <Hero
-                lang={lang}
-                theme={theme}
-                onExploreProducts={() => handleScrollToSection('products')}
-                onBecomeDealer={() => handleScrollToSection('dealers')}
-              />
-              
-              <About lang={lang} theme={theme} />
-              
-              <Products
-                lang={lang}
-                theme={theme}
-                openQuoteModal={openQuoteModal}
-              />
-              
-              <Technology lang={lang} />
-              
-              <Manufacturing lang={lang} />
-              
-              <WhyChooseUs lang={lang} />
-              
-              <DealerNetwork lang={lang} />
-              
-              <Services lang={lang} />
-              
-              <Reviews lang={lang} />
-              
-              <NewsBlog lang={lang} />
-              
-              <FAQ lang={lang} />
-              
-              <Contact lang={lang} />
-            </main>
-            {/* Float Actions and Intelligent Assist Ecosystem */}
-            <PremiumFeatures lang={lang} />
-          </>
-        } />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-      </Routes>
+      <main className="relative">
+        {children}
+      </main>
 
-      {/* Extensive Corporate Footer */}
+      <PremiumFeatures lang={lang} />
       <Footer lang={lang} theme={theme} />
 
       {/* Global Interactive Quote Request Modal */}
@@ -280,7 +184,16 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
+  );
+}
+
+export function ClientLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AppProvider>
+      <ClientLayoutInner>
+        {children}
+      </ClientLayoutInner>
+    </AppProvider>
   );
 }

@@ -1,0 +1,424 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  PDF
+  DOCUMENT
+  OTHER
+}
+
+enum LogAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PASSWORD_RESET
+  PERMISSION_DENIED
+  OTHER
+}
+
+// ==========================================
+// USER & AUTH
+// ==========================================
+
+model User {
+  id            String     @id @default(cuid())
+  name          String
+  email         String     @unique
+  password      String
+  status        UserStatus @default(ACTIVE)
+  emailVerified DateTime?
+  image         String?
+  companyId     String?
+  dealerId      String?
+  isSystemAdmin Boolean    @default(false)
+  forcePasswordChange Boolean @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  company             Company?             @relation(fields: [companyId], references: [id])
+  dealer              Dealer?              @relation(fields: [dealerId], references: [id])
+  userRoles           UserRole[]
+  sessions            Session[]
+  passwordResetTokens PasswordResetToken[]
+  activityLogs        ActivityLog[]
+  auditLogs           AuditLog[]
+  notifications       Notification[]
+
+  @@index([email])
+  @@index([companyId])
+  @@index([dealerId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionToken])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expires   DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+// ==========================================
+// RBAC — Roles & Permissions
+// ==========================================
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  isSystem    Boolean  @default(false) // System roles can't be deleted
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g., "users.create"
+  label       String   // Human-readable label
+  description String?
+  group       String   // e.g., "users", "cms", "products"
+  createdAt   DateTime @default(now())
+
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  id           String @id @default(cuid())
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+}
+
+// ==========================================
+// COMPANY & DEALER
+// ==========================================
+
+model Company {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  email       String?
+  phone       String?
+  address     String?
+  logo        String?
+  website     String?
+  description String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  users   User[]
+  dealers Dealer[]
+}
+
+model Dealer {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  region      String?
+  logo        String?
+  website     String?
+  description String?
+  isActive    Boolean  @default(true)
+  companyId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company? @relation(fields: [companyId], references: [id])
+  users   User[]
+
+  @@index([companyId])
+}
+
+// ==========================================
+// CMS — Content Management
+// ==========================================
+
+model ContentPage {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  description String?
+  metaTitle   String?
+  metaDesc    String?
+  ogImage     String?
+  keywords    String?
+  isPublished Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  sections ContentSection[]
+}
+
+model ContentSection {
+  id          String        @id @default(cuid())
+  pageId      String
+  key         String        // e.g., "hero", "about_mission"
+  title       String?
+  subtitle    String?
+  content     String?       // Rich text or plain text
+  imageUrl    String?
+  videoUrl    String?
+  ctaText     String?
+  ctaLink     String?
+  metadata    Json?         // Flexible JSON for extra fields
+  order       Int           @default(0)
+  status      ContentStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  page ContentPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, key])
+  @@index([pageId])
+}
+
+// ==========================================
+// PRODUCTS
+// ==========================================
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  parentId    String?
+  imageUrl    String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent   Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryChildren")
+  products Product[]
+
+  @@index([parentId])
+}
+
+model Product {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  description String?
+  content     String?       // Rich text
+  price       Decimal?      @db.Decimal(10, 2)
+  sku         String?       @unique
+  categoryId  String?
+  brand       String?
+  tags        Json?         // Changed to Json for MySQL
+  images      Json?         // Changed to Json for MySQL
+  thumbnail   String?
+  isFeatured  Boolean       @default(false)
+  status      ContentStatus @default(DRAFT)
+  sortOrder   Int           @default(0)
+  metaTitle   String?
+  metaDesc    String?
+  deletedAt   DateTime?     // Soft delete
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([isFeatured])
+}
+
+// ==========================================
+// MEDIA LIBRARY
+// ==========================================
+
+model Media {
+  id         String    @id @default(cuid())
+  filename   String
+  originalName String
+  url        String
+  mimeType   String
+  size       Int       // bytes
+  type       MediaType
+  folder     String?   @default("general")
+  altText    String?
+  uploadedBy String?
+  createdAt  DateTime  @default(now())
+
+  @@index([type])
+  @@index([folder])
+}
+
+// ==========================================
+// SETTINGS
+// ==========================================
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String?
+  type      String   @default("text") // text, json, boolean, number
+  group     String   @default("general") // general, seo, social, email
+  label     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([group])
+}
+
+// ==========================================
+// NOTIFICATIONS
+// ==========================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info") // info, warning, error, success
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+// ==========================================
+// AUDIT & ACTIVITY LOGS
+// ==========================================
+
+model ActivityLog {
+  id         String    @id @default(cuid())
+  userId     String?
+  action     LogAction
+  entity     String?   // e.g., "User", "Product"
+  entityId   String?
+  description String
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String    @id @default(cuid())
+  userId    String?
+  action    LogAction
+  entity    String
+  entityId  String
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+// ==========================================
+// CAPTCHA SYSTEM
+// ==========================================
+
+model CaptchaSession {
+  id        String   @id @default(cuid())
+  code      String
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model CaptchaLockout {
+  id          String   @id @default(cuid())
+  identifier  String   @unique
+  attempts    Int      @default(0)
+  lockedUntil DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

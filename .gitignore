@@ -6,3 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+.next/dev/cache/turbopack/v16.2.10/00000237.sst
+/.next
