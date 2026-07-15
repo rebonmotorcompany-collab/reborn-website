@@ -4,7 +4,10 @@ import { parse } from 'url';
 import dotenv from 'dotenv';
 import { execSync } from 'child_process';
 
-const dev = process.env.NODE_ENV !== 'production';
+// Load .env first (postbuild copies .env.production to .env in production)
+dotenv.config();
+
+const dev = process.env.NODE_ENV === 'development';
 
 // Load the appropriate environment variables based on the environment
 dotenv.config({ path: dev ? '.env.development' : '.env.production' });
