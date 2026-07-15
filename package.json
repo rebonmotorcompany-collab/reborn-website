@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "npx prisma migrate deploy && npx prisma db seed && next start",
+    "build": "npx prisma migrate deploy && npx prisma db seed && next build",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
