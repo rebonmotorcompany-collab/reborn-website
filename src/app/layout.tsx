@@ -26,13 +26,13 @@ export default function RootLayout({
         <ClientLayout>
           {children}
         </ClientLayout>
-        <script 
-          dangerouslySetInnerHTML={{ 
+        <script
+          dangerouslySetInnerHTML={{
             __html: `
               const chromane = document.getElementById('chromane-theme-root');
               if (chromane) chromane.remove();
-            ` 
-          }} 
+            `
+          }}
         />
       </body>
     </html>

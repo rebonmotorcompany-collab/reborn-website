@@ -208,7 +208,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Dealer Login */}
               <button
                 id="dealer-login-btn"
-                onClick={() => setDealerLoginOpen(true)}
+                onClick={() => router.push('/login')}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-[#D72626] dark:hover:border-[#D72626] transition-colors text-[9px] 2xl:text-[10px] font-bold uppercase tracking-wider"
               >
                 <LogIn size={12} />
@@ -286,7 +286,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => { setDealerLoginOpen(true); setMobileMenuOpen(false); }}
+                    onClick={() => { router.push('/login'); setMobileMenuOpen(false); }}
                     className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-white text-xs font-semibold"
                   >
                     <LogIn size={14} />
