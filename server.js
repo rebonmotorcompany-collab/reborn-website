@@ -4,11 +4,8 @@ import next from 'next';
 import dotenv from 'dotenv';
 
 // Environment variables are injected by the hosting platform (Hostinger dashboard).
-// However, during local development, we load the .env file.
 const NODE_ENV = process.env.NODE_ENV || 'production';
-if (NODE_ENV !== 'production') {
-  dotenv.config();
-}
+dotenv.config();
 
 // ─── Validate Required Variables ──────────────────────────────────────────────
 const REQUIRED_ENV_VARS = ['DATABASE_URL', 'AUTH_SECRET'];
