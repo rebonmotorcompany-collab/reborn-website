@@ -1,17 +1,34 @@
 import { PrismaClient } from '@prisma/client'
-import { Pool } from 'mysql2/promise'
-import { PrismaMysql } from '@prisma/adapter-mysql'
-import mysql from 'mysql2/promise'
+import { PrismaClientOptions } from '@prisma/client/runtime/library'
+import { PrismaClient as PrismaClientBase } from '.prisma/client'
+import { Pool, createPool } from 'mariadb'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
 const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL
-  const pool = mysql.createPool(connectionString as string)
-  const adapter = new PrismaMysql(pool)
+  if (!connectionString) {
+    return new PrismaClient()
+  }
 
-  return new PrismaClient({
-    adapter,
-  })
+  // Load dynamically so that it doesn't break if dependencies are missing during initial build
+  const { PrismaClient } = require('@prisma/client')
+  const { PrismaClient: PrismaClientBase } = require('.prisma/client')
+  const { PrismaMariaDb } = require('@prisma/adapter-mariadb')
+  const mariadb = require('mariadb')
+  
+  const pool = mariadb.createPool(connectionString)
+  const adapter = new PrismaMariaDb(pool)
+  
+  return new PrismaClient({ adapter })
 }
+
+declare global {
+  var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>
+}
+
+export const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
+
+if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma
 
 declare global {
   var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>
