@@ -13,12 +13,7 @@ dotenv.config({ path: '.env' });
 
 // Safely update database schema and seed data (runs before server starts)
 try {
-  console.log('Running database migrations and checking data safely...');
-  // db push safely syncs schema changes without needing local migration files
-  execSync('npx prisma db push', { stdio: 'inherit' });
-  // seed only inserts missing data (because your seed uses upsert)
-  execSync('npx prisma db seed', { stdio: 'inherit' });
-  console.log('Database sync complete.');
+  console.log('Database sync disabled on startup for production.');
 } catch (error) {
   console.error('Database sync failed:', error);
 }
