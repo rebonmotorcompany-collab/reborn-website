@@ -1,15 +1,7 @@
 import express from 'express';
 import next from 'next';
 import { parse } from 'url';
-import dotenv from 'dotenv';
-import { execSync } from 'child_process';
-
-// Force production mode for Hostinger
-process.env.NODE_ENV = 'production';
-const dev = false;
-
-// Load the appropriate environment variables based on the environment
-dotenv.config({ path: '.env' });
+const dev = process.env.NODE_ENV !== 'production';
 
 // Safely update database schema and seed data (runs before server starts)
 try {
