@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env NODE_ENV=development node server.js",
-    "build": "cross-env PRISMA_CLIENT_ENGINE_TYPE=library PRISMA_CLI_QUERY_ENGINE_TYPE=library prisma generate && npm run db:push && npm run db:seed && next build",
+    "build": "npm run db:push && npm run db:seed && next build --webpack",
     "start": "node server.js",
     "lint": "next lint",
     "db:generate": "cross-env PRISMA_CLIENT_ENGINE_TYPE=library PRISMA_CLI_QUERY_ENGINE_TYPE=library prisma generate",
