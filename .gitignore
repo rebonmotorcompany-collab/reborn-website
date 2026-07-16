@@ -40,3 +40,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+public/_next/static/chunks/1361-9ff7ae8354592a24.js
+/public
