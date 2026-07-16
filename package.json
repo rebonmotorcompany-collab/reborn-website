@@ -5,15 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env NODE_ENV=development node server.js",
-    "build": "cross-env PRISMA_CLIENT_ENGINE_TYPE=library PRISMA_CLI_QUERY_ENGINE_TYPE=library prisma generate && npm run db:clear && prisma migrate deploy && npm run db:push && npm run db:seed && next build",
+    "build": "cross-env PRISMA_CLIENT_ENGINE_TYPE=library PRISMA_CLI_QUERY_ENGINE_TYPE=library prisma generate && prisma migrate deploy && npm run db:push && npm run db:seed && next build",
     "start": "node server.js",
     "lint": "next lint",
     "db:generate": "cross-env PRISMA_CLIENT_ENGINE_TYPE=library PRISMA_CLI_QUERY_ENGINE_TYPE=library prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:clear": "tsx prisma/clear-db.ts",
-    "db:studio": "prisma studio"
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
