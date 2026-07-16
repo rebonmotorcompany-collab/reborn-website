@@ -1,40 +1,48 @@
-import express from 'express';
-import next from 'next';
+import { createServer } from 'http';
 import { parse } from 'url';
-const dev = process.env.NODE_ENV !== 'production';
+import next from 'next';
+import dotenv from 'dotenv';
 
-// Safely update database schema and seed data (runs before server starts)
-try {
-  console.log('Database sync disabled on startup for production.');
-} catch (error) {
-  console.error('Database sync failed:', error);
+// Environment variables are injected by the hosting platform (Hostinger dashboard).
+// However, during local development, we load the .env file.
+const NODE_ENV = process.env.NODE_ENV || 'production';
+if (NODE_ENV !== 'production') {
+  dotenv.config();
 }
 
-const hostname = 'localhost';
-const port = process.env.PORT || 3000;
+// ─── Validate Required Variables ──────────────────────────────────────────────
+const REQUIRED_ENV_VARS = ['DATABASE_URL', 'AUTH_SECRET'];
+const missing = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
+if (missing.length > 0) {
+  console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+  process.exit(1);
+}
 
-// when using middleware `hostname` and `port` must be provided below
+// ─── Server Configuration ──────────────────────────────────────────────────────
+const dev = NODE_ENV !== 'production';
+const hostname = process.env.HOSTNAME || '127.0.0.1';
+const port = parseInt(process.env.PORT, 10) || 3000;
+
+// ─── Next.js App ──────────────────────────────────────────────────────────────
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  const server = express();
-
-  server.all('*', async (req, res) => {
+  createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url, true);
       await handle(req, res, parsedUrl);
     } catch (err) {
       console.error('Error occurred handling', req.url, err);
-      res.status(500).send('internal server error');
+      res.statusCode = 500;
+      res.end('internal server error');
     }
-  });
-
-  server.listen(port, (err) => {
-    if (err) throw err;
-    console.log(`> Ready on http://${hostname}:${port}`);
-  });
-}).catch((ex) => {
-  console.error(ex.stack);
-  process.exit(1);
+  })
+    .once('error', (err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .listen(port, () => {
+      console.log(`🚀 Server running on http://${hostname}:${port} [${NODE_ENV}]`);
+    });
 });
