@@ -44,10 +44,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <script>
               (function() {
                 var progress = 0;
-                var bar = document.getElementById('loader-progress');
-                var pct = document.getElementById('loader-percentage');
-                var preloader = document.getElementById('global-preloader');
                 var interval = setInterval(function() {
+                  var bar = document.getElementById('loader-progress');
+                  var pct = document.getElementById('loader-percentage');
+                  var preloader = document.getElementById('global-preloader');
+                  
                   progress += 4;
                   if (progress >= 100) {
                     progress = 100;
