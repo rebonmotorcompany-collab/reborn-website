@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development node server.js",
     "prebuild": "node -e \"const fs = require('fs'); fs.rmSync('public/_next', { recursive: true, force: true });\"",
-    "build": "prisma db push && prisma db seed && next build",
+    "build": "next build",
+    "build:with-db": "prisma db push && prisma db seed && next build",
     "build:hostinger": "next build --webpack && node copy-static.js",
     "postbuild": "node copy-static.js",
     "postinstall": "prisma generate",
