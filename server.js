@@ -2,6 +2,29 @@ import { createServer } from 'http';
 import next from 'next';
 import dotenv from 'dotenv';
 
+// ─── Prisma Panic Recovery ────────────────────────────────────────────────────
+// PrismaClientRustPanicError is non-recoverable. The engine binary has crashed
+// and will remain in a zombie state. The only safe recovery is to exit — the
+// hosting platform (Hostinger) will automatically restart the process.
+function handleFatalError(err) {
+  if (
+    err &&
+    (err.name === 'PrismaClientRustPanicError' ||
+      (err.message && err.message.includes('PANIC')))
+  ) {
+    console.error('💥 Prisma Query Engine panicked (non-recoverable). Restarting process...', err.message);
+    process.exit(1);
+  }
+}
+process.on('uncaughtException', (err) => {
+  handleFatalError(err);
+  console.error('Uncaught exception:', err);
+});
+process.on('unhandledRejection', (reason) => {
+  handleFatalError(reason);
+  console.error('Unhandled rejection:', reason);
+});
+
 // Environment variables are injected by the hosting platform (Hostinger dashboard).
 const NODE_ENV = process.env.NODE_ENV || 'production';
 dotenv.config();
