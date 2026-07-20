@@ -1,6 +1,8 @@
 import { ProductsClient } from '@/components/ProductsClient';
 import { prisma } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProductsPage() {
   const rawProducts = await prisma.product.findMany({
     where: { status: 'PUBLISHED' },

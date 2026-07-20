@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import React from 'react';
 
+export const dynamic = 'force-dynamic';
+
 interface DynamicPageProps {
   params: Promise<{ slug: string }>;
 }

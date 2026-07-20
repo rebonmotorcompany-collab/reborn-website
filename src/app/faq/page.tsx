@@ -1,6 +1,8 @@
 import { FAQClient } from '@/components/FAQClient';
 import { prisma } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 export default async function FAQPage() {
   const faqs = await prisma.faqItem.findMany({
     where: { isActive: true },
