@@ -1,19 +1,27 @@
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { products } from '../data';
-import { Product, VehicleType } from '../types';
+import { VehicleType } from '../types';
 import { ShieldAlert, ArrowRight, Zap, Flame, Compass, ChevronRight, HelpCircle, FileText, CheckCircle } from 'lucide-react';
 
 interface ProductsProps {
   lang: string;
   theme: 'light' | 'dark';
   openQuoteModal: (productName: string) => void;
+  dbProducts: any[];
 }
 
-export const Products: React.FC<ProductsProps> = ({ lang, theme, openQuoteModal }) => {
+export const Products: React.FC<ProductsProps> = ({ lang, theme, openQuoteModal, dbProducts }) => {
+  const getType = (p: any) => {
+    if (p.type) return p.type;
+    if (Array.isArray(p.tags)) {
+      const t = p.tags.find((tag: string) => ['electric', 'petrol', 'scooter', 'coming_soon'].includes(tag.toLowerCase()));
+      if (t) return t.toLowerCase();
+    }
+    return 'electric';
+  };
   const [activeTab, setActiveTab] = useState<VehicleType | 'all'>('all');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
 
   const tabs: { label: string; value: VehicleType | 'all' }[] = [
     { label: lang === 'en' ? 'All Models' : lang === 'ur' ? 'تمام ماڈلز' : '所有车型', value: 'all' },
@@ -24,8 +32,8 @@ export const Products: React.FC<ProductsProps> = ({ lang, theme, openQuoteModal 
   ];
 
   const filteredProducts = activeTab === 'all'
-    ? products
-    : products.filter(p => p.type === activeTab);
+    ? dbProducts
+    : dbProducts.filter(p => getType(p) === activeTab);
 
   return (
     <section id="products" className="py-24 bg-[#F5F5F5] dark:bg-[#0E0E0E] transition-colors duration-300">
@@ -90,13 +98,13 @@ export const Products: React.FC<ProductsProps> = ({ lang, theme, openQuoteModal 
                   />
                   {/* Badge */}
                   <span className={`absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider
-                    ${product.type === 'electric' || product.type === 'scooter'
+                    ${getType(product) === 'electric' || getType(product) === 'scooter'
                       ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
-                      : product.type === 'petrol'
+                      : getType(product) === 'petrol'
                       ? 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
                       : 'bg-red-500/15 text-red-500 border border-red-500/30'}`}
                   >
-                    {product.type === 'coming_soon' ? 'Coming Soon' : product.type.toUpperCase()}
+                    {getType(product) === 'coming_soon' ? 'Coming Soon' : getType(product).toUpperCase()}
                   </span>
 
                   <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white font-display font-black text-sm px-3.5 py-1.5 rounded-xl">
@@ -240,12 +248,17 @@ export const Products: React.FC<ProductsProps> = ({ lang, theme, openQuoteModal 
                               <td className="text-neutral-900 dark:text-neutral-200 font-bold py-1.5 text-right">{selectedProduct.range}</td>
                             </tr>
                           )}
-                          {selectedProduct.specs.map(spec => (
-                            <tr key={spec.label} className="border-b border-neutral-100 dark:border-neutral-900 py-2 block">
-                              <td className="text-neutral-500 font-medium py-1.5 w-1/2">{spec.label}</td>
-                              <td className="text-neutral-900 dark:text-neutral-200 font-bold py-1.5 text-right">{spec.value}</td>
-                            </tr>
-                          ))}
+                          {selectedProduct.content ? (() => {
+                            try {
+                              const parsed = JSON.parse(selectedProduct.content);
+                              return (parsed.specs || []).map((spec: any) => (
+                                <tr key={spec.label} className="border-b border-neutral-100 dark:border-neutral-900 py-2 block">
+                                  <td className="text-neutral-500 font-medium py-1.5 w-1/2">{spec.label}</td>
+                                  <td className="text-neutral-900 dark:text-neutral-200 font-bold py-1.5 text-right">{spec.value}</td>
+                                </tr>
+                              ));
+                            } catch { return null; }
+                          })() : null}
                         </tbody>
                       </table>
                     </div>
@@ -254,12 +267,21 @@ export const Products: React.FC<ProductsProps> = ({ lang, theme, openQuoteModal 
                     <div className="space-y-4">
                       <h4 className="text-xs font-black text-neutral-400 uppercase tracking-widest border-b border-neutral-200 dark:border-neutral-800 pb-2">Premium Ride Highlights</h4>
                       <div className="space-y-2">
-                        {selectedProduct.features.map((feat, index) => (
-                          <div key={index} className="flex items-start gap-2 text-xs">
-                            <CheckCircle size={15} className="text-emerald-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-neutral-600 dark:text-neutral-300 font-light">{feat}</span>
-                          </div>
-                        ))}
+                        {selectedProduct.content ? (() => {
+                            try {
+                              const parsed = JSON.parse(selectedProduct.content);
+                              return (
+                                <div className="text-neutral-600 dark:text-neutral-300 font-light text-xs whitespace-pre-line">
+                                  {(parsed.features || []).map((feat: string, index: number) => (
+                                    <div key={index} className="flex items-start gap-2 text-xs mb-2">
+                                      <CheckCircle size={15} className="text-emerald-500 mt-0.5 flex-shrink-0" />
+                                      <span>{feat}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            } catch { return null; }
+                          })() : null}
                       </div>
                     </div>
                   </div>

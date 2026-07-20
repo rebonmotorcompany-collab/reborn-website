@@ -8,8 +8,8 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
       const isDashboardRoute = nextUrl.pathname.startsWith('/dashboard')
-      const isCompanyRoute = nextUrl.pathname.startsWith('/company')
-      const isDealerRoute = nextUrl.pathname.startsWith('/dealer')
+      const isCompanyRoute = nextUrl.pathname.startsWith('/company-portal') || nextUrl.pathname.startsWith('/company/dashboard')
+      const isDealerRoute = nextUrl.pathname.startsWith('/dealer-portal') || nextUrl.pathname.startsWith('/dealer/dashboard')
       const isAuthRoute = ['/login', '/forgot-password', '/reset-password'].some(p => nextUrl.pathname.startsWith(p))
 
       // Prevent logged in users from accessing auth pages
@@ -25,7 +25,13 @@ export const authConfig = {
       if (isDashboardRoute) {
         if (!isLoggedIn) return false
         const roles = (auth.user as any).roles || []
-        if (!roles.includes('super-admin') && !roles.includes('admin') && !roles.includes('employee')) {
+        const allowedRoles = [
+          'super-admin', 'admin', 'manager', 'sales-manager',
+          'dealer-manager', 'marketing', 'customer-support',
+          'content-editor', 'finance', 'viewer', 'employee'
+        ]
+        const hasAccess = roles.some((r: string) => allowedRoles.includes(r))
+        if (!hasAccess) {
             return Response.redirect(new URL('/unauthorized', nextUrl))
         }
         return true

@@ -8,12 +8,17 @@ export const PERMISSIONS = {
   CREATE_USERS: 'users.create',
   EDIT_USERS: 'users.edit',
   DELETE_USERS: 'users.delete',
+  ASSIGN_USER_ROLES: 'users.assign_roles',
+  RESET_USER_PASSWORD: 'users.reset_password',
+  LOCK_USER: 'users.lock',
+  BULK_ACTION_USERS: 'users.bulk_action',
   
   // Roles
   VIEW_ROLES: 'roles.view',
   CREATE_ROLES: 'roles.create',
   EDIT_ROLES: 'roles.edit',
   DELETE_ROLES: 'roles.delete',
+  ASSIGN_ROLE_PERMISSIONS: 'roles.assign_permissions',
   
   // Companies
   VIEW_COMPANIES: 'companies.view',
@@ -40,11 +45,34 @@ export const PERMISSIONS = {
   // Media
   VIEW_MEDIA: 'media.view',
   UPLOAD_MEDIA: 'media.upload',
+  EDIT_MEDIA: 'media.edit',
   DELETE_MEDIA: 'media.delete',
+  DOWNLOAD_MEDIA: 'media.download',
+  MANAGE_FOLDERS: 'media.folders',
   
   // Settings
   VIEW_SETTINGS: 'settings.view',
   EDIT_SETTINGS: 'settings.edit',
+
+  // Activity Logs
+  VIEW_ACTIVITY_LOGS: 'activity_logs.view',
+
+  // Reports
+  VIEW_REPORTS: 'reports.view',
+  EXPORT_REPORTS: 'reports.export',
+
+  // Orders
+  VIEW_ORDERS: 'orders.view',
+  CREATE_ORDERS: 'orders.create',
+  EDIT_ORDERS: 'orders.edit',
+  DELETE_ORDERS: 'orders.delete',
+
+  // Customers
+  VIEW_CUSTOMERS: 'customers.view',
+  CREATE_CUSTOMERS: 'customers.create',
+  EDIT_CUSTOMERS: 'customers.edit',
+  DELETE_CUSTOMERS: 'customers.delete',
 } as const;
 
 export type PermissionKey = typeof PERMISSIONS[keyof typeof PERMISSIONS];
+

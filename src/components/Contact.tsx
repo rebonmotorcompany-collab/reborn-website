@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Clock, MessageSquare, CheckCircle, Send, PhoneCall } from 'lucide-react';
+import { useAppContext } from '@/context/AppContext';
 
 interface ContactProps {
   lang: string;
 }
 
 export const Contact: React.FC<ContactProps> = ({ lang }) => {
+  const { settings = {} } = useAppContext();
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -29,6 +31,17 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
     }, 2500);
   };
 
+  const getDayHoursText = (day: string) => {
+    const status = settings[`hours_${day}_status`] || 'open';
+    if (status === 'closed') return 'Closed';
+    const open = settings[`hours_${day}_open`] || '09:00';
+    const close = settings[`hours_${day}_close`] || '18:00';
+    return `${open} — ${close}`;
+  };
+
+  const phoneValue = settings?.contact_phone || '+92 (42) 111-732-661';
+  const cleanPhone = phoneValue.replace(/[^0-9+]/g, '');
+
   return (
     <section id="contact" className="py-24 bg-[#F5F5F5] dark:bg-[#0E0E0E] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,7 +62,9 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
           {/* Corporate Details Left */}
           <div className="lg:col-span-5 space-y-8">
             <div className="p-8 rounded-3xl bg-white dark:bg-[#141414] border border-neutral-200/60 dark:border-neutral-800/80 shadow-sm space-y-6">
-              <h3 className="text-lg font-black font-display uppercase tracking-wider text-neutral-900 dark:text-white">Rebon Motor Company (HQ)</h3>
+              <h3 className="text-lg font-black font-display uppercase tracking-wider text-neutral-900 dark:text-white">
+                {settings.site_name || 'Rebon Motor Company'} (HQ)
+              </h3>
               
               <div className="space-y-4 text-xs sm:text-sm font-light">
                 <div className="flex gap-4 items-start">
@@ -59,7 +74,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   <div>
                     <span className="block font-black text-neutral-400 uppercase text-[9px] tracking-wider">Corporate Headquarters</span>
                     <p className="text-neutral-700 dark:text-neutral-300 mt-1 leading-relaxed">
-                      88-D/1, Main Boulevard Gulberg III, Lahore, Punjab, Pakistan
+                      {settings.office_address || '88-D/1, Main Boulevard Gulberg III, Lahore, Punjab, Pakistan'}
                     </p>
                   </div>
                 </div>
@@ -71,7 +86,7 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   <div>
                     <span className="block font-black text-neutral-400 uppercase text-[9px] tracking-wider">Telephone Line</span>
                     <p className="text-neutral-700 dark:text-neutral-300 mt-1">
-                      <a href="tel:+9242111732661" className="hover:text-[#D72626] transition-colors font-semibold">+92 (42) 111-REBON-1</a>
+                      <a href={`tel:${cleanPhone}`} className="hover:text-[#D72626] transition-colors font-semibold">{phoneValue}</a>
                     </p>
                   </div>
                 </div>
@@ -83,9 +98,13 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   <div>
                     <span className="block font-black text-neutral-400 uppercase text-[9px] tracking-wider">Corporate Email</span>
                     <p className="text-neutral-700 dark:text-neutral-300 mt-1">
-                      <a href="mailto:info@rebonmotor.com" className="hover:text-[#D72626] transition-colors">info@rebonmotor.com</a>
+                      <a href={`mailto:${settings.contact_email || 'info@rebonmotor.com'}`} className="hover:text-[#D72626] transition-colors">
+                        {settings.contact_email || 'info@rebonmotor.com'}
+                      </a>
                     </p>
-                    <p className="text-neutral-400 text-xs font-mono">support@rebonmotor.com</p>
+                    {settings.support_email && (
+                      <p className="text-neutral-400 text-xs font-mono">{settings.support_email}</p>
+                    )}
                   </div>
                 </div>
 
@@ -95,10 +114,20 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
                   </div>
                   <div>
                     <span className="block font-black text-neutral-400 uppercase text-[9px] tracking-wider">Office Hours</span>
-                    <p className="text-neutral-700 dark:text-neutral-300 mt-1">
-                      Monday — Saturday: 09:00 AM - 06:00 PM
-                    </p>
-                    <p className="text-red-500 text-xs font-semibold">Sunday Closed</p>
+                    <div className="text-neutral-700 dark:text-neutral-300 mt-1 space-y-1">
+                      <div className="flex justify-between gap-4">
+                        <span className="font-bold">Mon — Fri:</span>
+                        <span>{getDayHoursText('monday')}</span>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <span className="font-bold">Sat:</span>
+                        <span>{getDayHoursText('saturday')}</span>
+                      </div>
+                      <div className="flex justify-between gap-4">
+                        <span className="font-bold text-red-500">Sun:</span>
+                        <span className="text-red-500 font-semibold">{getDayHoursText('sunday')}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -108,22 +137,34 @@ export const Contact: React.FC<ContactProps> = ({ lang }) => {
             <div className="p-6 rounded-3xl bg-white dark:bg-[#141414] border border-neutral-200/60 dark:border-neutral-800/80 shadow-sm flex flex-col justify-between overflow-hidden">
               <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest mb-3">Office Landmark Map</span>
               <div className="relative w-full h-44 bg-neutral-50 dark:bg-[#0A0A0A] border border-neutral-200/60 dark:border-neutral-800/80 rounded-xl overflow-hidden">
-                {/* Styled Grid resembling streets of Gulberg Lahore */}
-                <div className="absolute inset-0 bg-grid-lines stroke-neutral-200 dark:stroke-neutral-800 opacity-20 pointer-events-none" />
-                <div className="absolute left-1/3 top-0 w-1.5 h-full bg-neutral-200 dark:bg-neutral-800" /> {/* Main Boulevard */}
-                <div className="absolute left-0 top-1/2 w-full h-1.5 bg-neutral-200 dark:bg-neutral-800" /> {/* Jail Road */}
-                
-                {/* Pin Point */}
-                <div className="absolute left-[33%] top-[50%] -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
-                  <span className="relative flex h-6 w-6 items-center justify-center">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                    <MapPin size={18} className="text-[#D72626] relative z-10" />
-                  </span>
-                  <span className="bg-neutral-900 text-white font-mono text-[8px] font-bold px-1.5 py-0.5 rounded shadow mt-1">RMC HQ</span>
-                </div>
+                {settings.google_maps_url ? (
+                  <iframe 
+                    src={settings.google_maps_url} 
+                    className="w-full h-full border-0" 
+                    allowFullScreen 
+                    loading="lazy" 
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                ) : (
+                  <>
+                    {/* Styled Grid resembling streets of Gulberg Lahore */}
+                    <div className="absolute inset-0 bg-grid-lines stroke-neutral-200 dark:stroke-neutral-800 opacity-20 pointer-events-none" />
+                    <div className="absolute left-1/3 top-0 w-1.5 h-full bg-neutral-200 dark:bg-neutral-800" /> {/* Main Boulevard */}
+                    <div className="absolute left-0 top-1/2 w-full h-1.5 bg-neutral-200 dark:bg-neutral-800" /> {/* Jail Road */}
+                    
+                    {/* Pin Point */}
+                    <div className="absolute left-[33%] top-[50%] -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center">
+                      <span className="relative flex h-6 w-6 items-center justify-center">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                        <MapPin size={18} className="text-[#D72626] relative z-10" />
+                      </span>
+                      <span className="bg-neutral-900 text-white font-mono text-[8px] font-bold px-1.5 py-0.5 rounded shadow mt-1">RMC HQ</span>
+                    </div>
+                  </>
+                )}
               </div>
               <p className="text-[10px] text-neutral-400 mt-2 text-center font-light">
-                🗺️ Located at Main Boulevard Gulberg III (adjacent to Liberty Market), Lahore.
+                🗺️ Located at {settings.office_address ? `${settings.office_city || ''} ${settings.office_country || ''}` : 'Main Boulevard Gulberg III (adjacent to Liberty Market), Lahore'}.
               </p>
             </div>
           </div>

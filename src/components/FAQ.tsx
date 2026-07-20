@@ -1,14 +1,15 @@
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { faqs } from '../data';
+
 import { ChevronDown, HelpCircle } from 'lucide-react';
 
 interface FAQProps {
   lang: string;
+  dbFaqs: any[];
 }
 
-export const FAQ: React.FC<FAQProps> = ({ lang }) => {
+export const FAQ: React.FC<FAQProps> = ({ lang, dbFaqs }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(0); // Default open first item
 
   const toggleAccordion = (index: number) => {
@@ -32,7 +33,7 @@ export const FAQ: React.FC<FAQProps> = ({ lang }) => {
 
         {/* Collapsible Accordion Group */}
         <div className="space-y-4">
-          {faqs.map((faq, index) => {
+          {dbFaqs.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
               <div

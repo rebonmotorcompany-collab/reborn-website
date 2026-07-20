@@ -8,11 +8,12 @@ interface AppContextType {
   lang: string;
   setLang: (lang: string) => void;
   openQuoteModal: (productName?: string) => void;
+  settings: Record<string, string | null>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
+export function AppProvider({ children, settings = {} }: { children: React.ReactNode, settings?: Record<string, string | null> }) {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [lang, setLang] = useState<string>('en');
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
@@ -34,7 +35,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AppContext.Provider value={{ theme, setTheme, lang, setLang, openQuoteModal }}>
+    <AppContext.Provider value={{ theme, setTheme, lang, setLang, openQuoteModal, settings }}>
       {children}
     </AppContext.Provider>
   );

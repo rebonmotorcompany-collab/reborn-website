@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { X, CheckCircle, Send, ShieldCheck } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-function ClientLayoutInner({ children }: { children: React.ReactNode }) {
+function ClientLayoutInner({ children, products }: { children: React.ReactNode, products: any[] }) {
   const { theme, setTheme, lang, setLang, openQuoteModal } = useAppContext();
   const pathname = usePathname();
   
@@ -23,8 +23,8 @@ function ClientLayoutInner({ children }: { children: React.ReactNode }) {
   const [quoteSubmitted, setQuoteSubmitted] = useState(false);
 
   const isPortalRoute = pathname?.startsWith('/dashboard') || 
-                        pathname?.startsWith('/company') || 
-                        pathname?.startsWith('/dealer') || 
+                        pathname?.startsWith('/login') || 
+                        pathname?.startsWith('/forgot-password') || 
                         pathname?.startsWith('/unauthorized');
 
   const handleQuoteSubmit = (e: React.FormEvent) => {
@@ -59,6 +59,7 @@ function ClientLayoutInner({ children }: { children: React.ReactNode }) {
         lang={lang}
         setLang={setLang}
         openQuoteModal={() => { setQuoteModalOpen(true); setSelectedProductForQuote('Rebon E-Volt X'); }}
+        dbProducts={products}
       />
 
       <main className="relative">
@@ -188,10 +189,10 @@ function ClientLayoutInner({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ClientLayout({ children }: { children: React.ReactNode }) {
+export function ClientLayout({ children, settings = {}, products = [] }: { children: React.ReactNode, settings?: Record<string, string | null>, products?: any[] }) {
   return (
-    <AppProvider>
-      <ClientLayoutInner>
+    <AppProvider settings={settings}>
+      <ClientLayoutInner products={products}>
         {children}
       </ClientLayoutInner>
     </AppProvider>

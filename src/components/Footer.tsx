@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import { RmcLogo } from './RmcLogo';
-import { Check, Mail, Send, Facebook, Twitter, Instagram, Linkedin, ArrowUp } from 'lucide-react';
+import { Check, Mail, Send, Facebook, Twitter, Instagram, Linkedin, Youtube, ArrowUp } from 'lucide-react';
+import { useAppContext } from '@/context/AppContext';
 
 interface FooterProps {
   lang: string;
@@ -11,6 +12,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ lang, theme }) => {
+  const { settings = {} } = useAppContext();
   const [subEmail, setSubEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -28,6 +30,8 @@ export const Footer: React.FC<FooterProps> = ({ lang, theme }) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const isEnabled = (key: string) => settings[key] === 'true';
+
   return (
     <footer className="bg-neutral-950 text-white pt-20 pb-8 border-t border-neutral-900 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,24 +41,56 @@ export const Footer: React.FC<FooterProps> = ({ lang, theme }) => {
           
           {/* Logo & Bio Left */}
           <div className="md:col-span-4 space-y-6">
-            <RmcLogo theme="dark" className="h-10 w-auto" />
+            <RmcLogo 
+              theme="dark" 
+              className="h-10 w-auto" 
+              logoUrl={settings.footer_logo || settings.logo_white || settings.logo_primary} 
+            />
             <p className="text-xs text-neutral-400 font-light leading-relaxed">
-              Rebon Motor Company (RMC) is Pakistans pioneering automotive company, crafting next-generation, high-performance electric and fuel-efficient petrol motorcycles designed indigenously with global engineering standards.
+              {settings?.footer_description || settings?.site_description || "Rebon Motor Company (RMC) is Pakistan's pioneering automotive company, crafting next-generation, high-performance electric and fuel-efficient petrol motorcycles designed indigenously with global engineering standards."}
             </p>
             {/* Social media icons */}
-            <div className="flex gap-4">
-              <a href="#" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors">
-                <Facebook size={16} />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors">
-                <Twitter size={16} />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors">
-                <Instagram size={16} />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors">
-                <Linkedin size={16} />
-              </a>
+            <div className="flex flex-wrap gap-3">
+              {settings?.social_facebook && isEnabled('social_facebook_enabled') && (
+                <a href={settings.social_facebook} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors" title="Facebook">
+                  <Facebook size={16} />
+                </a>
+              )}
+              {settings?.social_twitter && isEnabled('social_twitter_enabled') && (
+                <a href={settings.social_twitter} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors" title="Twitter">
+                  <Twitter size={16} />
+                </a>
+              )}
+              {settings?.social_instagram && isEnabled('social_instagram_enabled') && (
+                <a href={settings.social_instagram} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors" title="Instagram">
+                  <Instagram size={16} />
+                </a>
+              )}
+              {settings?.social_linkedin && isEnabled('social_linkedin_enabled') && (
+                <a href={settings.social_linkedin} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors" title="LinkedIn">
+                  <Linkedin size={16} />
+                </a>
+              )}
+              {settings?.social_youtube && isEnabled('social_youtube_enabled') && (
+                <a href={settings.social_youtube} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors" title="YouTube">
+                  <Youtube size={16} />
+                </a>
+              )}
+              {settings?.social_tiktok && isEnabled('social_tiktok_enabled') && (
+                <a href={settings.social_tiktok} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors text-xs font-bold leading-none flex items-center justify-center min-w-8 min-h-8" title="TikTok">
+                  <span>TT</span>
+                </a>
+              )}
+              {settings?.social_threads && isEnabled('social_threads_enabled') && (
+                <a href={settings.social_threads} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors text-xs font-bold leading-none flex items-center justify-center min-w-8 min-h-8" title="Threads">
+                  <span>TH</span>
+                </a>
+              )}
+              {settings?.social_pinterest && isEnabled('social_pinterest_enabled') && (
+                <a href={settings.social_pinterest} target="_blank" rel="noreferrer" className="p-2 rounded-full bg-neutral-900 hover:bg-[#D72626] text-neutral-400 hover:text-white transition-colors text-xs font-bold leading-none flex items-center justify-center min-w-8 min-h-8" title="Pinterest">
+                  <span>PIN</span>
+                </a>
+              )}
             </div>
           </div>
 
@@ -124,7 +160,7 @@ export const Footer: React.FC<FooterProps> = ({ lang, theme }) => {
         {/* Regulatory footer bottom */}
         <div className="pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-neutral-500 gap-4">
           <div>
-            © {new Date().getFullYear()} Rebon Motor Company (RMC) Pakistan. All Rights Reserved.
+            © {new Date().getFullYear()} {settings.copyright_text || "Rebon Motor Company (RMC) Pakistan. All Rights Reserved."}
           </div>
           <div className="flex gap-6">
             <Link

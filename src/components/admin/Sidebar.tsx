@@ -11,28 +11,33 @@ import {
   Package, 
   FileText, 
   Image as ImageIcon, 
-  Settings 
+  Settings,
+  Activity
 } from 'lucide-react'
 
 interface SidebarProps {
   userRoles: string[]
+  userPermissions?: string[]
 }
 
-export default function Sidebar({ userRoles }: SidebarProps) {
+export default function Sidebar({ userRoles, userPermissions = [] }: SidebarProps) {
   const pathname = usePathname()
   const isSuperAdmin = userRoles.includes('super-admin')
+
+  const hasPerm = (p: string) => isSuperAdmin || userPermissions.includes(p)
   
-  // Navigation items based on roles (can be expanded based on granular permissions if needed)
+  // Navigation items based on granular userPermissions
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, show: true },
-    { name: 'Users', href: '/dashboard/users', icon: Users, show: isSuperAdmin || userRoles.includes('admin') },
-    { name: 'Roles', href: '/dashboard/roles', icon: ShieldCheck, show: isSuperAdmin },
-    { name: 'Companies', href: '/dashboard/companies', icon: Building2, show: isSuperAdmin },
-    { name: 'Dealers', href: '/dashboard/dealers', icon: Store, show: isSuperAdmin },
-    { name: 'Products', href: '/dashboard/products', icon: Package, show: true },
-    { name: 'CMS', href: '/dashboard/cms', icon: FileText, show: true },
-    { name: 'Media Library', href: '/dashboard/media', icon: ImageIcon, show: true },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings, show: isSuperAdmin },
+    { name: 'Users', href: '/dashboard/users', icon: Users, show: hasPerm('users.view') },
+    { name: 'Roles', href: '/dashboard/roles', icon: ShieldCheck, show: hasPerm('roles.view') },
+    { name: 'Companies', href: '/dashboard/companies', icon: Building2, show: hasPerm('companies.view') },
+    { name: 'Dealers', href: '/dashboard/dealers', icon: Store, show: hasPerm('dealers.view') },
+    { name: 'Products', href: '/dashboard/products', icon: Package, show: hasPerm('products.view') },
+    { name: 'CMS', href: '/dashboard/cms', icon: FileText, show: hasPerm('cms.view') },
+    { name: 'Media Library', href: '/dashboard/media', icon: ImageIcon, show: hasPerm('media.view') },
+    { name: 'Activity Logs', href: '/dashboard/activity-logs', icon: Activity, show: hasPerm('activity_logs.view') },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings, show: hasPerm('settings.view') },
   ]
 
   return (

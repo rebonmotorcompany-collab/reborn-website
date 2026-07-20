@@ -1,10 +1,11 @@
-'use client';
+import { NewsBlogClient } from '@/components/NewsBlogClient';
+import { prisma } from '@/lib/db';
 
-import { NewsBlog } from '@/components/NewsBlog';
-import { useAppContext } from '@/context/AppContext';
+export default async function NewsPage() {
+  const posts = await prisma.post.findMany({
+    where: { status: 'PUBLISHED' },
+    orderBy: { createdAt: 'desc' }
+  });
 
-export default function NewsBlogPage() {
-  const { lang } = useAppContext();
-
-  return <NewsBlog lang={lang} />;
+  return <NewsBlogClient posts={posts} />;
 }

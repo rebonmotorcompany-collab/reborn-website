@@ -1,10 +1,11 @@
-'use client';
+import { ReviewsClient } from '@/components/ReviewsClient';
+import { prisma } from '@/lib/db';
 
-import { Reviews } from '@/components/Reviews';
-import { useAppContext } from '@/context/AppContext';
+export default async function ReviewsPage() {
+  const testimonials = await prisma.testimonial.findMany({
+    where: { isActive: true },
+    orderBy: { createdAt: 'desc' }
+  });
 
-export default function ReviewsPage() {
-  const { lang } = useAppContext();
-
-  return <Reviews lang={lang} />;
+  return <ReviewsClient testimonials={testimonials} />;
 }

@@ -1,10 +1,16 @@
-'use client';
+import { ProductsClient } from '@/components/ProductsClient';
+import { prisma } from '@/lib/db';
 
-import { Products } from '@/components/Products';
-import { useAppContext } from '@/context/AppContext';
+export default async function ProductsPage() {
+  const rawProducts = await prisma.product.findMany({
+    where: { status: 'PUBLISHED' },
+    orderBy: { sortOrder: 'asc' }
+  });
+  
+  const products = rawProducts.map(p => ({
+    ...p,
+    price: p.price ? p.price.toString() : null
+  }));
 
-export default function ProductsPage() {
-  const { lang, theme, openQuoteModal } = useAppContext();
-
-  return <Products lang={lang} theme={theme} openQuoteModal={openQuoteModal} />;
+  return <ProductsClient products={products} />;
 }

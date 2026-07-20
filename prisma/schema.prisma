@@ -34,6 +34,19 @@ enum MediaType {
   OTHER
 }
 
+enum DealerType {
+  AUTHORIZED
+  FRANCHISE
+  DISTRIBUTOR
+  RETAIL
+}
+
+enum DealerStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
 enum LogAction {
   CREATE
   UPDATE
@@ -52,26 +65,41 @@ enum LogAction {
 model User {
   id            String     @id @default(cuid())
   name          String
+  username      String?    @unique
   email         String     @unique
   password      String
   status        UserStatus @default(ACTIVE)
-  emailVerified DateTime?
+  phone         String?
+  department    String?
+  designation   String?
+  employeeId    String?
   image         String?
   companyId     String?
   dealerId      String?
   isSystemAdmin Boolean    @default(false)
   forcePasswordChange Boolean @default(false)
+  twoFactorEnabled    Boolean @default(false)
+  timezone      String     @default("UTC")
+  language      String     @default("en")
+  lockedAt      DateTime?
+  failedLoginAttempts Int    @default(0)
+  lastLoginAt   DateTime?
+  accountExpiresAt DateTime?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 
   company             Company?             @relation(fields: [companyId], references: [id])
   dealer              Dealer?              @relation(fields: [dealerId], references: [id])
   userRoles           UserRole[]
+  userPermissions     UserPermission[]
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
   activityLogs        ActivityLog[]
   auditLogs           AuditLog[]
   notifications       Notification[]
+  posts               Post[]               @relation("PostAuthor")
+  comments            Comment[]            @relation("CommentAuthor")
+  loginHistories      LoginHistory[]
 
   @@index([email])
   @@index([companyId])
@@ -113,8 +141,11 @@ model Role {
   id          String   @id @default(cuid())
   name        String   @unique
   slug        String   @unique
+  displayName String?
   description String?
   isSystem    Boolean  @default(false) // System roles can't be deleted
+  color       String?  // Optional hex/color name for badges
+  priority    Int      @default(0)     // Higher priority roles override lower ones
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -131,6 +162,7 @@ model Permission {
   createdAt   DateTime @default(now())
 
   rolePermissions RolePermission[]
+  userPermissions UserPermission[]
 }
 
 model RolePermission {
@@ -160,6 +192,35 @@ model UserRole {
   @@index([roleId])
 }
 
+model UserPermission {
+  id           String  @id @default(cuid())
+  userId       String
+  permissionId String
+  value        Boolean @default(true) // true = allow, false = deny (override)
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permissionId])
+  @@index([userId])
+  @@index([permissionId])
+}
+
+model LoginHistory {
+  id            String   @id @default(cuid())
+  userId        String
+  ipAddress     String?
+  userAgent     String?
+  status        String   // e.g. "SUCCESS", "FAILED"
+  failureReason String?
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
 // ==========================================
 // COMPANY & DEALER
 // ==========================================
@@ -183,26 +244,79 @@ model Company {
 }
 
 model Dealer {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  email       String?
-  phone       String?
-  address     String?
-  city        String?
-  region      String?
-  logo        String?
-  website     String?
-  description String?
-  isActive    Boolean  @default(true)
-  companyId   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String       @id @default(cuid())
 
-  company Company? @relation(fields: [companyId], references: [id])
-  users   User[]
+  // Basic Information
+  name             String
+  slug             String       @unique
+  dealerCode       String       @unique
+  businessName     String?
+  dealerType       DealerType   @default(AUTHORIZED)
+  status           DealerStatus @default(ACTIVE)
+
+  // Contact Information
+  contactPerson    String?
+  designation      String?
+  phone            String?      // Mobile
+  whatsapp         String?
+  landline         String?
+  email            String?
+
+  // Address
+  address          String?
+  city             String?
+  district         String?
+  province         String?
+  country          String?      @default("Pakistan")
+  postalCode       String?
+  googleMapsUrl    String?
+
+  // Business Details
+  registrationNo   String?
+  taxNo            String?
+  yearsInBusiness  Int?
+
+  // Products & Services (stored as JSON string arrays)
+  products         Json?        // e.g. ["ELECTRIC_BIKES","PETROL_BIKES"]
+  services         Json?        // e.g. ["SALES","SERVICE"]
+
+  // Business Hours
+  openingTime      String?
+  closingTime      String?
+  workingDays      Json?        // e.g. ["MON","TUE","WED"]
+
+  // Social Links
+  facebook         String?
+  instagram        String?
+  linkedin         String?
+  youtube          String?
+  website          String?
+
+  // Uploads (URL strings — managed via Media Library)
+  logo             String?
+  coverImage       String?
+  galleryImages    Json?        // string[]
+  documents        Json?        // string[]
+
+  // Notes
+  internalNotes    String?      @db.Text
+  publicNotes      String?      @db.Text
+
+  // Meta
+  companyId        String?
+  isActive         Boolean      @default(true)
+  deletedAt        DateTime?    // Soft delete
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  company          Company?     @relation(fields: [companyId], references: [id])
+  users            User[]
 
   @@index([companyId])
+  @@index([status])
+  @@index([dealerType])
+  @@index([city])
+  @@index([deletedAt])
 }
 
 // ==========================================
@@ -276,7 +390,7 @@ model Product {
   name        String
   slug        String        @unique
   description String?
-  content     String?       // Rich text
+  content     String?       @db.LongText // Rich text
   price       Decimal?      @db.Decimal(10, 2)
   sku         String?       @unique
   categoryId  String?
@@ -305,20 +419,60 @@ model Product {
 // ==========================================
 
 model Media {
-  id         String    @id @default(cuid())
-  filename   String
+  id           String       @id @default(cuid())
+  filename     String
   originalName String
-  url        String
-  mimeType   String
-  size       Int       // bytes
-  type       MediaType
-  folder     String?   @default("general")
-  altText    String?
-  uploadedBy String?
-  createdAt  DateTime  @default(now())
+  url          String
+  mimeType     String
+  size         Int
+  type         MediaType
+  width        Int?         // Image width
+  height       Int?         // Image height
+  duration     Float?       // Video duration
+  altText      String?
+  caption      String?
+  description  String?      @db.Text
+  tags         Json?        // string[] tags
+  uploadedBy   String?
+  folderId     String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  folder       MediaFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  usages       MediaUsage[]
 
   @@index([type])
-  @@index([folder])
+  @@index([folderId])
+}
+
+model MediaFolder {
+  id        String   @id @default(cuid())
+  name      String
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  parent    MediaFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  MediaFolder[] @relation("FolderHierarchy")
+  media     Media[]
+
+  @@unique([name, parentId])
+  @@index([parentId])
+}
+
+model MediaUsage {
+  id         String   @id @default(cuid())
+  mediaId    String
+  entity     String   // e.g. "Product", "Dealer", "ContentSection", "Post", "User"
+  entityId   String   // primary key of the using entity
+  fieldName  String?  // e.g. "thumbnail", "image", "logo"
+  createdAt  DateTime @default(now())
+
+  media      Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, entity, entityId, fieldName])
+  @@index([mediaId])
+  @@index([entity, entityId])
 }
 
 // ==========================================
@@ -328,7 +482,7 @@ model Media {
 model Setting {
   id        String   @id @default(cuid())
   key       String   @unique
-  value     String?
+  value     String?  @db.Text
   type      String   @default("text") // text, json, boolean, number
   group     String   @default("general") // general, seo, social, email
   label     String?
@@ -421,4 +575,172 @@ model CaptchaLockout {
   lockedUntil DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// ==========================================
+// NEW CMS ENTITIES
+// ==========================================
+
+model Menu {
+  id        String     @id @default(cuid())
+  name      String     // e.g. "Main Menu", "Footer Policies"
+  slug      String     @unique
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  items     MenuItem[]
+}
+
+model MenuItem {
+  id        String   @id @default(cuid())
+  menuId    String
+  label     String   // The text to display
+  url       String?  // The URL it points to (could be internal or external)
+  parentId  String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  icon      String?
+  target    String?  @default("_self")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  menu      Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  parent    MenuItem?  @relation("MenuChildren", fields: [parentId], references: [id])
+  children  MenuItem[] @relation("MenuChildren")
+
+  @@index([menuId])
+  @@index([parentId])
+}
+
+model PostCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  posts       Post[]
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
+  posts     Post[]   @relation("PostToTag")
+}
+
+model Post {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  excerpt     String?
+  content     String?       @db.LongText // Use LongText for rich content
+  featuredImg String?
+  authorId    String?
+  categoryId  String?
+  status      ContentStatus @default(DRAFT)
+  isFeatured  Boolean       @default(false)
+  metaTitle   String?
+  metaDesc    String?
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  author      User?         @relation("PostAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  category    PostCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags        Tag[]         @relation("PostToTag")
+  comments    Comment[]
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([authorId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String?
+  name      String?
+  email     String?
+  content   String
+  isApproved Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User?    @relation("CommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([postId])
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  role        String?  // Designation or company
+  company     String?
+  avatar      String?
+  rating      Int      @default(5)
+  content     String   @db.Text
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model FaqCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  faqs        FaqItem[]
+}
+
+model FaqItem {
+  id          String       @id @default(cuid())
+  categoryId  String?
+  question    String
+  answer      String       @db.Text
+  order       Int          @default(0)
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  category    FaqCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([categoryId])
+}
+
+model GalleryAlbum {
+  id          String         @id @default(cuid())
+  name        String
+  slug        String         @unique
+  description String?
+  isActive    Boolean        @default(true)
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  images      GalleryImage[]
+}
+
+model GalleryImage {
+  id          String        @id @default(cuid())
+  albumId     String
+  url         String
+  altText     String?
+  caption     String?
+  order       Int           @default(0)
+  createdAt   DateTime      @default(now())
+
+  album       GalleryAlbum  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+
+  @@index([albumId])
 }

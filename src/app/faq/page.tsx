@@ -1,10 +1,11 @@
-'use client';
+import { FAQClient } from '@/components/FAQClient';
+import { prisma } from '@/lib/db';
 
-import { FAQ } from '@/components/FAQ';
-import { useAppContext } from '@/context/AppContext';
+export default async function FAQPage() {
+  const faqs = await prisma.faqItem.findMany({
+    where: { isActive: true },
+    orderBy: { order: 'asc' }
+  });
 
-export default function FAQPage() {
-  const { lang } = useAppContext();
-
-  return <FAQ lang={lang} />;
+  return <FAQClient faqs={faqs} />;
 }

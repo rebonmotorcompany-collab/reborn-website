@@ -1,23 +1,26 @@
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { reviews } from '../data';
+
 import { Star, ArrowLeft, ArrowRight, Quote } from 'lucide-react';
 
 interface ReviewsProps {
   lang: string;
+  dbReviews: any[];
 }
 
-export const Reviews: React.FC<ReviewsProps> = ({ lang }) => {
+export const Reviews: React.FC<ReviewsProps> = ({ lang, dbReviews }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? reviews.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? dbReviews.length - 1 : prev - 1));
   };
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev === reviews.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === dbReviews.length - 1 ? 0 : prev + 1));
   };
+
+  if (!dbReviews || dbReviews.length === 0) return null;
 
   return (
     <section className="py-24 bg-[#FFFFFF] dark:bg-[#0A0A0A] text-[#1E1E1E] dark:text-neutral-100 transition-colors duration-300">
@@ -52,27 +55,29 @@ export const Reviews: React.FC<ReviewsProps> = ({ lang }) => {
             >
               {/* Star rating */}
               <div className="flex gap-1">
-                {[...Array(reviews[currentIndex].rating)].map((_, i) => (
+                {[...Array(dbReviews[currentIndex].rating || 5)].map((_, i) => (
                   <Star key={i} size={16} className="fill-amber-500 text-amber-500" />
                 ))}
               </div>
 
               {/* Comment text */}
               <p className="text-sm sm:text-base md:text-lg text-neutral-700 dark:text-neutral-300 font-light leading-relaxed italic">
-                "{reviews[currentIndex].comment}"
+                "{dbReviews[currentIndex].content}"
               </p>
 
               {/* User Bio */}
               <div className="flex items-center gap-4 pt-4 border-t border-neutral-200 dark:border-neutral-800">
-                <img
-                  src={reviews[currentIndex].avatar}
-                  alt={reviews[currentIndex].name}
-                  className="w-12 h-12 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
-                  referrerPolicy="no-referrer"
-                />
+                {dbReviews[currentIndex].image && (
+                  <img
+                    src={dbReviews[currentIndex].image}
+                    alt={dbReviews[currentIndex].author}
+                    className="w-12 h-12 rounded-full object-cover border border-neutral-200 dark:border-neutral-700"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
                 <div>
-                  <h4 className="font-bold text-sm text-neutral-950 dark:text-white">{reviews[currentIndex].name}</h4>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">{reviews[currentIndex].role}</p>
+                  <h4 className="font-bold text-sm text-neutral-950 dark:text-white">{dbReviews[currentIndex].author}</h4>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">{dbReviews[currentIndex].role}</p>
                 </div>
               </div>
             </motion.div>

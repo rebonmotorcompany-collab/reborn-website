@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     if (error.message && error.message.includes('Too many failed attempts')) {
       return NextResponse.json(
         { error: error.message },
-        { status: 429 } // Too Many Requests
+        { status: 403 } // Use 403 instead of 429 to avoid Hostinger/Cloudflare HTML interception
       )
     }
 

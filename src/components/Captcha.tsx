@@ -22,10 +22,18 @@ export default function Captcha({ moduleKey = 'general' }: CaptchaProps) {
         cache: 'no-store'
       })
       
-      const data = await res.json()
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch (e) {
+        setError(`Server returned HTML or invalid JSON (Status: ${res.status})`)
+        setLoading(false)
+        return
+      }
 
       if (!res.ok) {
-        if (res.status === 429) {
+        if (res.status === 403 || res.status === 429) {
           setError(data.error || 'Too many attempts. Locked out.')
           setEnabled(false) // Disable interaction while locked
         } else {

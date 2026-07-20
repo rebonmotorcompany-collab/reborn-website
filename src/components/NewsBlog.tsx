@@ -1,14 +1,16 @@
 'use client';
 import React from 'react';
 import { motion } from 'motion/react';
-import { newsArticles } from '../data';
+
 import { Calendar, Tag, ArrowRight } from 'lucide-react';
 
 interface NewsBlogProps {
   lang: string;
+  dbPosts: any[];
 }
 
-export const NewsBlog: React.FC<NewsBlogProps> = ({ lang }) => {
+export const NewsBlog: React.FC<NewsBlogProps> = ({ lang, dbPosts }) => {
+  if (!dbPosts || dbPosts.length === 0) return null;
   return (
     <section id="news" className="py-24 bg-[#F5F5F5] dark:bg-[#0E0E0E] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,7 +28,7 @@ export const NewsBlog: React.FC<NewsBlogProps> = ({ lang }) => {
 
         {/* News Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {newsArticles.map((article, index) => (
+          {dbPosts.map((article, index) => (
             <motion.article
               key={article.id}
               initial={{ opacity: 0, y: 20 }}
@@ -54,7 +56,7 @@ export const NewsBlog: React.FC<NewsBlogProps> = ({ lang }) => {
                 <div>
                   <div className="flex items-center gap-4 text-[10px] text-neutral-400 font-bold mb-3 font-mono">
                     <span className="flex items-center gap-1">
-                      <Calendar size={12} /> {article.date}
+                      <Calendar size={12} /> {new Date(article.createdAt || Date.now()).toLocaleDateString()}
                     </span>
                     <span className="flex items-center gap-1">
                       <Tag size={12} /> RMC Official

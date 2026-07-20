@@ -3,13 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Search, Globe, LogIn, Sparkles, MessageCircle, ArrowRight, Sun, Moon, Eye, EyeOff } from 'lucide-react';
 import { RmcLogo } from './RmcLogo';
-import { products } from '../data';
 import { useRouter, usePathname } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { validateCaptchaAction } from '@/actions/auth';
 import { authenticate } from '@/actions/auth';
 import Captcha from '@/components/Captcha';
 import Link from 'next/link';
+import { useAppContext } from '@/context/AppContext';
 
 interface NavbarProps {
   theme: 'light' | 'dark';
@@ -17,6 +17,7 @@ interface NavbarProps {
   lang: string;
   setLang: (lang: string) => void;
   openQuoteModal: (productName?: string) => void;
+  dbProducts: any[];
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -25,7 +26,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   lang,
   setLang,
   openQuoteModal,
+  dbProducts,
 }) => {
+  const { settings = {} } = useAppContext();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -115,9 +118,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     router.push(path);
   };
 
-  const filteredProducts = products.filter(p =>
+  const filteredProducts = (dbProducts || []).filter(p =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.description.toLowerCase().includes(searchQuery.toLowerCase())
+    (p.description || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -133,7 +136,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Brand Logo */}
             <div className="flex-shrink-0 cursor-pointer" onClick={() => handleScroll('hero')}>
-              <RmcLogo theme={theme} className="h-10 w-auto" />
+              <RmcLogo 
+                theme={theme} 
+                className="h-10 w-auto" 
+                logoUrl={theme === 'dark' 
+                  ? (settings.logo_dark || settings.logo_primary || settings.logo_white) 
+                  : (settings.logo_secondary || settings.logo_primary || settings.logo_dark)
+                } 
+              />
             </div>
 
             {/* Desktop Navigation links */}
@@ -208,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Dealer Login */}
               <button
                 id="dealer-login-btn"
-                onClick={() => router.push('/login')}
+                onClick={() => setDealerLoginOpen(true)}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-[#D72626] dark:hover:border-[#D72626] transition-colors text-[9px] 2xl:text-[10px] font-bold uppercase tracking-wider"
               >
                 <LogIn size={12} />
@@ -217,7 +227,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
               {/* WhatsApp Floating link click simulation */}
               <a
-                href="https://wa.me/923000000000"
+                href={`https://wa.me/${(settings?.whatsapp_number || settings?.contact_phone || '923000000000').replace(/[^0-9]/g, '')}`}
                 target="_blank"
                 rel="noreferrer"
                 id="whatsapp-header-link"
@@ -286,7 +296,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => { router.push('/login'); setMobileMenuOpen(false); }}
+                    onClick={() => { setDealerLoginOpen(true); setMobileMenuOpen(false); }}
                     className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-white text-xs font-semibold"
                   >
                     <LogIn size={14} />

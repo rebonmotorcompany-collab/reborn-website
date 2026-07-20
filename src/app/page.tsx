@@ -1,27 +1,16 @@
-'use client';
+import { HomeClient } from '@/components/HomeClient';
+import { prisma } from '@/lib/db';
 
-import { Hero } from '@/components/Hero';
-import { About } from '@/components/About';
-import { Products } from '@/components/Products';
-import { Contact } from '@/components/Contact';
-import { useAppContext } from '@/context/AppContext';
-import { useRouter } from 'next/navigation';
+export default async function Home() {
+  const rawProducts = await prisma.product.findMany({
+    where: { status: 'PUBLISHED' },
+    orderBy: { sortOrder: 'asc' }
+  });
+  
+  const products = rawProducts.map(p => ({
+    ...p,
+    price: p.price ? p.price.toString() : null
+  }));
 
-export default function Home() {
-  const { lang, theme, openQuoteModal } = useAppContext();
-  const router = useRouter();
-
-  return (
-    <>
-      <Hero
-        lang={lang}
-        theme={theme}
-        onExploreProducts={() => router.push('/products')}
-        onBecomeDealer={() => router.push('/dealers')}
-      />
-      <About lang={lang} theme={theme} />
-      <Products lang={lang} theme={theme} openQuoteModal={openQuoteModal} />
-      <Contact lang={lang} />
-    </>
-  );
+  return <HomeClient products={products} />;
 }

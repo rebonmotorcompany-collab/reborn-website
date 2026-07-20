@@ -1,8 +1,41 @@
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { timelineItems } from '../data';
 import { Eye, Rocket, Heart, Cpu, ShieldCheck, Factory, Award } from 'lucide-react';
+import { useAppContext } from '@/context/AppContext';
+
+const timelineItems = [
+  {
+    year: '2011',
+    title: 'Founding & Precision Parts',
+    description: 'Rebon Motor Company (RMC) started as a high-precision automotive engineering component supplier in Lahore, Pakistan.'
+  },
+  {
+    year: '2015',
+    title: 'Entry into Motorcycle Manufacturing',
+    description: 'Successfully built and launched our first line of highly durable petrol commuter bikes, expanding rapidly to 30 dealership points.'
+  },
+  {
+    year: '2019',
+    title: 'The Green Energy Initiative',
+    description: 'Inaugurated our dedicated EV Research and Development Lab, investing over $5M in indigenizing electric drivetrain and battery cell tech.'
+  },
+  {
+    year: '2023',
+    title: 'Robotic Mega-Factory Open',
+    description: 'Completed construction of a high-tech robotic assembly plant in Lahore with state-of-the-art testing tracks and strict quality check cells.'
+  },
+  {
+    year: '2025',
+    title: 'National EV Leadership',
+    description: 'Launched the landmark E-Volt Series, becoming Pakistans premier brand in high-performance premium electric and smart motorcycles.'
+  },
+  {
+    year: '2026',
+    title: 'Smart IoT Ecosystem Integration',
+    description: 'Deployed advanced IoT systems with proprietary mobile app support and GPS safety tracking, crossing 10,000+ happy riders.'
+  }
+];
 
 interface AboutProps {
   lang: string;
@@ -11,6 +44,7 @@ interface AboutProps {
 
 export const About: React.FC<AboutProps> = ({ lang, theme }) => {
   const [selectedYearIndex, setSelectedYearIndex] = useState(timelineItems.length - 1);
+  const { settings = {} } = useAppContext();
 
   return (
     <section id="about" className="py-24 bg-[#FFFFFF] dark:bg-[#0A0A0A] text-[#1E1E1E] dark:text-neutral-100 transition-colors duration-300">
@@ -33,7 +67,7 @@ export const About: React.FC<AboutProps> = ({ lang, theme }) => {
             transition={{ delay: 0.1 }}
             className="text-3xl md:text-4xl font-black font-display tracking-tight text-neutral-900 dark:text-white uppercase"
           >
-            {lang === 'en' ? 'Engineering Beyond Boundaries' : lang === 'ur' ? 'سرحدوں سے آگے انجینئرنگ' : '超越边界的工程技术'}
+            {settings?.company_tagline || (lang === 'en' ? 'Engineering Beyond Boundaries' : lang === 'ur' ? 'سرحدوں سے آگے انجینئرنگ' : '超越边界的工程技术')}
           </motion.h2>
           <div className="w-16 h-1 bg-[#D72626] mx-auto mt-4 rounded-full" />
         </div>
@@ -58,11 +92,11 @@ export const About: React.FC<AboutProps> = ({ lang, theme }) => {
               </h3>
             </div>
             <p className="text-sm text-neutral-650 dark:text-neutral-400 leading-relaxed font-light">
-              {lang === 'en' 
+              {settings?.company_description || (lang === 'en' 
                 ? 'To accelerate Pakistans transition to sustainable clean energy by producing premium, reliable, highly performant electric vehicles while continuing to deliver fuel-efficient mechanical precision for everyday riders.'
                 : lang === 'ur'
-                ? 'روزمرہ سواروں کے لیے ایندھن کے لحاظ سے کارآمد مکینیکل پریسجن فراہم کرتے ہوئے پریمیم، قابل اعتماد، انتہائی کارآمد الیکٹرک گاڑیاں بنا کر پاکستان کی پائیدار صاف توانائی کی طرف منتقلی کو تیز کرنا۔'
-                : '通过生产优质、可靠、高性能的电动汽车，同时继续为日常骑手提供省油的机械精度，加速巴基斯坦向可持续清洁能源的转型。'}
+                ? 'روزمرہ سواروں کے لیے ایندھن کے لحاظ سے کارآمد مکینیکل پریسجن فراہم کرتے ہوئے پریمیم, قابل اعتماد, انتہائی کارآمد الیکٹرک گاڑیاں بنا کر پاکستان کی پائیدار صاف توانائی کی طرف منتقلی کو تیز کرنا۔'
+                : '通过生产优质、可靠、高性能的电动汽车，同时继续为日常骑手提供省油的机械精度，加速巴基斯坦向可持续清洁能源的转型。')}
             </p>
           </motion.div>
 
