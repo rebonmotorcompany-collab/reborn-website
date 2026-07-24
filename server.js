@@ -1,6 +1,7 @@
 import { createServer } from 'http';
 import next from 'next';
 import dotenv from 'dotenv';
+import { execSync } from 'child_process';
 
 // ─── Prisma Panic Recovery ────────────────────────────────────────────────────
 // PrismaClientRustPanicError is non-recoverable. The engine binary has crashed
@@ -40,7 +41,6 @@ if (missing.length > 0) {
 // ─── Auto DB Schema Sync on Server Startup ──────────────────────────────────
 try {
   console.log('🔄 Syncing database schema with MySQL...');
-  const { execSync } = await import('child_process');
   execSync('npx prisma db push --accept-data-loss=false', { stdio: 'inherit' });
   console.log('✅ Database schema in sync.');
 } catch (dbErr) {
