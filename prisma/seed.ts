@@ -276,6 +276,19 @@ const PERMISSIONS_TO_SEED = [
   { name: 'customers.create', label: 'Create Customers', group: 'customers' },
   { name: 'customers.edit', label: 'Edit Customers', group: 'customers' },
   { name: 'customers.delete', label: 'Delete Customers', group: 'customers' },
+
+  { name: 'about.view', label: 'View About Us', group: 'about' },
+  { name: 'about.edit', label: 'Edit About Us', group: 'about' },
+
+  { name: 'team.view', label: 'View Team Members', group: 'team' },
+  { name: 'team.create', label: 'Create Team Members', group: 'team' },
+  { name: 'team.edit', label: 'Edit Team Members', group: 'team' },
+  { name: 'team.delete', label: 'Delete Team Members', group: 'team' },
+
+  { name: 'careers.view', label: 'View Careers', group: 'careers' },
+  { name: 'careers.create', label: 'Create Careers', group: 'careers' },
+  { name: 'careers.edit', label: 'Edit Careers', group: 'careers' },
+  { name: 'careers.delete', label: 'Delete Careers', group: 'careers' },
 ]
 
 // ─── Default Roles ─────────────────────────────────────────────────────────────
@@ -306,6 +319,9 @@ const rolePermissionsMap: Record<string, string[]> = {
     'media.view', 'media.upload', 'media.edit', 'media.delete', 'media.download', 'media.folders',
     'settings.view',
     'activity_logs.view',
+    'about.view', 'about.edit',
+    'team.view', 'team.create', 'team.edit', 'team.delete',
+    'careers.view', 'careers.create', 'careers.edit', 'careers.delete',
   ],
   'manager': [
     'dashboard.view',

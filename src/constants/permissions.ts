@@ -72,6 +72,22 @@ export const PERMISSIONS = {
   CREATE_CUSTOMERS: 'customers.create',
   EDIT_CUSTOMERS: 'customers.edit',
   DELETE_CUSTOMERS: 'customers.delete',
+
+  // Company — About Us
+  VIEW_ABOUT: 'about.view',
+  EDIT_ABOUT: 'about.edit',
+
+  // Company — Team
+  VIEW_TEAM: 'team.view',
+  CREATE_TEAM: 'team.create',
+  EDIT_TEAM: 'team.edit',
+  DELETE_TEAM: 'team.delete',
+
+  // Company — Careers
+  VIEW_CAREERS: 'careers.view',
+  CREATE_CAREERS: 'careers.create',
+  EDIT_CAREERS: 'careers.edit',
+  DELETE_CAREERS: 'careers.delete',
 } as const;
 
 export type PermissionKey = typeof PERMISSIONS[keyof typeof PERMISSIONS];

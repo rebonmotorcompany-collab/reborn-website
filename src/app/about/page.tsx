@@ -1,10 +1,5 @@
-'use client';
+import { redirect } from 'next/navigation';
 
-import { About } from '@/components/About';
-import { useAppContext } from '@/context/AppContext';
-
-export default function AboutPage() {
-  const { lang, theme } = useAppContext();
-
-  return <About lang={lang} theme={theme} />;
+export default function LegacyAboutPage() {
+  redirect('/company/about');
 }

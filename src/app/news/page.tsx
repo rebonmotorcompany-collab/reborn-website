@@ -1,13 +1,5 @@
-import { NewsBlogClient } from '@/components/NewsBlogClient';
-import { prisma } from '@/lib/db';
+import { redirect } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
-
-export default async function NewsPage() {
-  const posts = await prisma.post.findMany({
-    where: { status: 'PUBLISHED' },
-    orderBy: { createdAt: 'desc' }
-  });
-
-  return <NewsBlogClient posts={posts} />;
+export default function LegacyNewsPage() {
+  redirect('/company/news');
 }

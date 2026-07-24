@@ -100,6 +100,8 @@ model User {
   posts               Post[]               @relation("PostAuthor")
   comments            Comment[]            @relation("CommentAuthor")
   loginHistories      LoginHistory[]
+  visitingCards       VisitingCard[]       @relation("VisitingCardEmployee")
+  createdVisitingCards VisitingCard[]      @relation("VisitingCardCreator")
 
   @@index([email])
   @@index([companyId])
@@ -744,3 +746,139 @@ model GalleryImage {
 
   @@index([albumId])
 }
+
+// ==========================================
+// COMPANY MODULE
+// ==========================================
+
+// Single-document store for all About Us sections.
+// Each row = one named section (key = "hero" | "mission" | "vision" | etc.)
+// Data is stored as flexible JSON so each section can have its own shape.
+model AboutSection {
+  id        String   @id @default(cuid())
+  key       String   @unique // hero | intro | mission | vision | story | why_us | stats | gallery | seo
+  data      Json     // Section-specific structured object
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+model TeamMember {
+  id            String    @id @default(cuid())
+  name          String
+  position      String?
+  department    String?
+  biography     String?   @db.Text
+  experience    String?
+  qualification String?
+  email         String?
+  phone         String?
+  linkedin      String?
+  facebook      String?
+  instagram     String?
+  twitter       String?
+  photo         String?
+  coverImage    String?
+  order         Int       @default(0)
+  isFeatured    Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  joiningDate   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([isActive])
+  @@index([order])
+  @@index([department])
+}
+
+model Career {
+  id               String    @id @default(cuid())
+  title            String
+  department       String?
+  location         String?
+  employmentType   String?   // FULL_TIME | PART_TIME | CONTRACT | INTERNSHIP | REMOTE
+  experience       String?
+  salaryRange      String?
+  description      String?   @db.LongText
+  responsibilities String?   @db.LongText
+  requirements     String?   @db.LongText
+  skills           String?   @db.Text
+  benefits         String?   @db.Text
+  deadline         DateTime?
+  applyEmail       String?
+  applyUrl         String?
+  status           String    @default("DRAFT") // DRAFT | PUBLISHED | CLOSED
+  metaTitle        String?
+  metaDesc         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([status])
+  @@index([department])
+  @@index([location])
+  @@index([employmentType])
+}
+
+// ==========================================
+// VISITING CARD GENERATOR MODULE
+// ==========================================
+
+model VisitingCardTemplate {
+  id              String   @id @default(cuid())
+  name            String
+  templateType    String   @default("MODERN") // CLASSIC | MODERN | CORPORATE | MINIMAL | DARK | PREMIUM | VERTICAL | HORIZONTAL
+  primaryColor    String   @default("#D72626")
+  secondaryColor  String   @default("#1E1E1E")
+  backgroundColor String   @default("#0F0F11")
+  textColor       String   @default("#FFFFFF")
+  fontFamily      String   @default("Inter")
+  fontSize        String   @default("medium")
+  borderRadius    String   @default("16px")
+  logoPosition    String   @default("center")
+  qrPosition      String   @default("bottom-right")
+  iconStyle       String   @default("circle")
+  isDefault       Boolean  @default(false)
+  status          String   @default("ACTIVE")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  visitingCards   VisitingCard[]
+}
+
+model VisitingCard {
+  id             String                @id @default(cuid())
+  cardName       String
+  employeeId     String?
+  templateId     String?
+  fullName       String
+  designation    String?
+  department     String?
+  employeeCode   String?
+  phone          String?
+  whatsapp       String?
+  email          String?
+  extension      String?
+  qrCodeType     String                @default("VCARD") // VCARD | WEBSITE | WHATSAPP | EMAIL | CUSTOM
+  qrCodeValue    String?               @db.Text
+  customQrUrl    String?
+  profilePhoto   String?
+  companyName    String?
+  companyLogo    String?
+  website        String?
+  address        String?
+  frontBgType    String                @default("POLYGON")
+  backBgType     String                @default("LIGHT_POLYGON")
+  status         String                @default("ACTIVE")
+  createdBy      String?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+
+  employee       User?                 @relation("VisitingCardEmployee", fields: [employeeId], references: [id], onDelete: SetNull)
+  creator        User?                 @relation("VisitingCardCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  template       VisitingCardTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([employeeId])
+  @@index([templateId])
+  @@index([status])
+}
+

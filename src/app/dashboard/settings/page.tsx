@@ -17,8 +17,10 @@ import {
   AlertCircle,
   FileText,
   MapPin,
-  Image as ImageIcon
+  Image as ImageIcon,
+  CreditCard
 } from 'lucide-react';
+import Link from 'next/link';
 import MediaPicker from '@/components/admin/MediaPicker';
 
 interface SettingItem {
@@ -130,18 +132,27 @@ export default function SettingsDashboard() {
           <h1 className="text-2xl font-black text-neutral-900 dark:text-white uppercase tracking-tight">System Settings</h1>
           <p className="text-sm text-neutral-500 mt-1">Configure global application variables, SEO details, contact forms, and integrations.</p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-650 hover:bg-red-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white font-bold text-sm uppercase tracking-wider rounded-xl transition-colors shadow-lg shadow-red-500/10 cursor-pointer"
-        >
-          {saving ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
-          ) : (
-            <Save size={16} />
-          )}
-          <span>{saving ? 'Saving...' : 'Save Settings'}</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/settings/visiting-cards"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral-900 dark:bg-neutral-800 hover:bg-neutral-800 text-white font-bold text-sm uppercase tracking-wider rounded-xl transition-colors shadow-sm"
+          >
+            <CreditCard size={16} className="text-[#D72626]" />
+            <span>Visiting Card Generator</span>
+          </Link>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-red-650 hover:bg-red-700 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white font-bold text-sm uppercase tracking-wider rounded-xl transition-colors shadow-lg shadow-red-500/10 cursor-pointer"
+          >
+            {saving ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+            ) : (
+              <Save size={16} />
+            )}
+            <span>{saving ? 'Saving...' : 'Save Settings'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Message Banner */}

@@ -40,7 +40,7 @@ export const Footer: React.FC<FooterProps> = ({ lang, theme }) => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 pb-16 border-b border-neutral-900">
           
           {/* Logo & Bio Left */}
-          <div className="md:col-span-4 space-y-6">
+          <div className="md:col-span-3 space-y-6">
             <RmcLogo 
               theme="dark" 
               className="h-10 w-auto" 
@@ -106,6 +106,18 @@ export const Footer: React.FC<FooterProps> = ({ lang, theme }) => {
             </ul>
           </div>
 
+          {/* Company links */}
+          <div className="md:col-span-2 space-y-4">
+            <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-300 border-b border-neutral-900 pb-2">Company</h4>
+            <ul className="space-y-2.5 text-xs text-neutral-400 font-light">
+              <li><Link href="/company/about" className="hover:text-[#D72626] transition-colors">About Us</Link></li>
+              <li><Link href="/company/news" className="hover:text-[#D72626] transition-colors">Latest News</Link></li>
+              <li><Link href="/company/team" className="hover:text-[#D72626] transition-colors">Meet Our Team</Link></li>
+              <li><Link href="/company/careers" className="hover:text-[#D72626] transition-colors">Careers / Jobs</Link></li>
+              <li><Link href="/contact" className="hover:text-[#D72626] transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+
           <div className="md:col-span-2 space-y-4">
             <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-300 border-b border-neutral-900 pb-2">Dealerships</h4>
             <ul className="space-y-2.5 text-xs text-neutral-400 font-light">
@@ -117,7 +129,7 @@ export const Footer: React.FC<FooterProps> = ({ lang, theme }) => {
           </div>
 
           {/* Newsletter subscription form */}
-          <div className="md:col-span-4 space-y-4">
+          <div className="md:col-span-3 space-y-4">
             <h4 className="text-[10px] font-black uppercase tracking-[0.25em] text-neutral-300 border-b border-neutral-900 pb-2">Newsletter</h4>
             <p className="text-xs text-neutral-400 font-light leading-relaxed">
               Subscribe to receive latest software OTA updates, heavy launch announcements, and dealership exclusive pricing plans.

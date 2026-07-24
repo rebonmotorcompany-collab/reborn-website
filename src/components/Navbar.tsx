@@ -1,12 +1,11 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Search, Globe, LogIn, Sparkles, MessageCircle, ArrowRight, Sun, Moon, Eye, EyeOff } from 'lucide-react';
+import { Menu, X, Search, Globe, LogIn, Sparkles, MessageCircle, ArrowRight, Sun, Moon, Eye, EyeOff, ChevronDown, ChevronRight, Info, Newspaper, Users, Briefcase } from 'lucide-react';
 import { RmcLogo } from './RmcLogo';
 import { useRouter, usePathname } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { validateCaptchaAction } from '@/actions/auth';
-import { authenticate } from '@/actions/auth';
 import Captcha from '@/components/Captcha';
 import Link from 'next/link';
 import { useAppContext } from '@/context/AppContext';
@@ -35,6 +34,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [searchOpen, setSearchOpen] = useState(false);
   const [dealerLoginOpen, setDealerLoginOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+
+  const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false);
+  const [mobileCompanyOpen, setMobileCompanyOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -83,38 +85,59 @@ export const Navbar: React.FC<NavbarProps> = ({
         setSearchOpen(false);
         setDealerLoginOpen(false);
         setLangOpen(false);
+        setCompanyDropdownOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const menuItems = [
-    { label: lang === 'en' ? 'Home' : lang === 'ur' ? 'ہوم' : '首页', id: 'hero' },
-    { label: lang === 'en' ? 'About' : lang === 'ur' ? 'ہمارے بارے میں' : '关于', id: 'about' },
-    { label: lang === 'en' ? 'Products' : lang === 'ur' ? 'پروڈکٹس' : '产品', id: 'products' },
-    { label: lang === 'en' ? 'Technology' : lang === 'ur' ? 'ٹیکنالوجی' : '科技', id: 'technology' },
-    { label: lang === 'en' ? 'Manufacturing' : lang === 'ur' ? 'پیداوار' : '制造', id: 'manufacturing' },
-    { label: lang === 'en' ? 'Dealers' : lang === 'ur' ? 'ڈیلرز' : '经销商', id: 'dealers' },
-    { label: lang === 'en' ? 'Services' : lang === 'ur' ? 'خدمات' : '服务', id: 'services' },
-    { label: lang === 'en' ? 'News' : lang === 'ur' ? 'خبریں' : '新闻', id: 'news' },
-    { label: lang === 'en' ? 'Contact' : lang === 'ur' ? 'رابطہ' : '联系我们', id: 'contact' },
+  const companySubItems = [
+    {
+      label: lang === 'en' ? 'About Us' : lang === 'ur' ? 'ہمارے بارے میں' : '关于我们',
+      desc: lang === 'en' ? 'Learn who we are and what drives us.' : lang === 'ur' ? 'معلوم کریں کہ ہم کون ہیں اور کیا پیش کرتے ہیں' : '了解我们是谁以及我们的驱动力',
+      path: '/company/about',
+      icon: Info,
+    },
+    {
+      label: lang === 'en' ? 'News' : lang === 'ur' ? 'خبریں' : '新闻',
+      desc: lang === 'en' ? 'Stay updated on our latest announcements.' : lang === 'ur' ? 'ہمارے تازہ ترین اعلانات سے باخبر رہیں' : '随时了解我们的最新动态',
+      path: '/company/news',
+      icon: Newspaper,
+    },
+    {
+      label: lang === 'en' ? 'Team' : lang === 'ur' ? 'ہماری ٹیم' : '团队',
+      desc: lang === 'en' ? 'Meet our engineers, designers, and innovators.' : lang === 'ur' ? 'ہمارے انجینئرز اور اختراع کاروں سے ملیں' : '认识我们的工程师、设计师和创新者',
+      path: '/company/team',
+      icon: Users,
+    },
+    {
+      label: lang === 'en' ? 'Careers' : lang === 'ur' ? 'کیریئرز' : '招聘',
+      desc: lang === 'en' ? 'Join our growing team.' : lang === 'ur' ? 'ہماری بڑھتی ہوئی ٹیم کا حصہ بنیں' : '加入我们发展迅速的团队',
+      path: '/company/careers',
+      icon: Briefcase,
+    },
   ];
 
-  const handleScroll = (id: string) => {
+  const menuItems = [
+    { label: lang === 'en' ? 'Home' : lang === 'ur' ? 'ہوم' : '首页', id: 'hero', path: '/' },
+    {
+      label: lang === 'en' ? 'Company' : lang === 'ur' ? 'کمپنی' : '公司',
+      id: 'company',
+      isDropdown: true,
+      children: companySubItems,
+    },
+    { label: lang === 'en' ? 'Products' : lang === 'ur' ? 'پروڈکٹس' : '产品', id: 'products', path: '/products' },
+    { label: lang === 'en' ? 'Technology' : lang === 'ur' ? 'ٹیکنالوجی' : '科技', id: 'technology', path: '/technology' },
+    { label: lang === 'en' ? 'Manufacturing' : lang === 'ur' ? 'پیداوار' : '制造', id: 'manufacturing', path: '/manufacturing' },
+    { label: lang === 'en' ? 'Dealers' : lang === 'ur' ? 'ڈیلرز' : '经销商', id: 'dealers', path: '/dealers' },
+    { label: lang === 'en' ? 'Services' : lang === 'ur' ? 'خدمات' : '服务', id: 'services', path: '/services' },
+    { label: lang === 'en' ? 'Contact' : lang === 'ur' ? 'رابطہ' : '联系 आम्ही', id: 'contact', path: '/contact' },
+  ];
+
+  const handleNavigate = (path: string) => {
     setMobileMenuOpen(false);
-
-    let path = '/';
-    if (id === 'hero') path = '/';
-    else if (id === 'about') path = '/about';
-    else if (id === 'products') path = '/products';
-    else if (id === 'technology') path = '/technology';
-    else if (id === 'manufacturing') path = '/manufacturing';
-    else if (id === 'dealers') path = '/dealers';
-    else if (id === 'services') path = '/services';
-    else if (id === 'news') path = '/news';
-    else if (id === 'contact') path = '/contact';
-
+    setCompanyDropdownOpen(false);
     router.push(path);
   };
 
@@ -122,6 +145,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (p.description || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const isCompanyActive = pathname.startsWith('/company');
 
   return (
     <div id="navbar-wrapper">
@@ -135,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center justify-between h-20">
 
             {/* Brand Logo */}
-            <div className="flex-shrink-0 cursor-pointer" onClick={() => handleScroll('hero')}>
+            <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNavigate('/')}>
               <RmcLogo 
                 theme={theme} 
                 className="h-10 w-auto" 
@@ -148,16 +173,101 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Desktop Navigation links */}
             <div className="hidden xl:flex items-center space-x-1 2xl:space-x-2">
-              {menuItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleScroll(item.id)}
-                  className="px-2 py-2 text-[10px] 2xl:text-[11px] font-bold uppercase tracking-[0.12em] 2xl:tracking-[0.15em] text-neutral-800 dark:text-white hover:text-[#D72626] dark:hover:text-[#D72626] transition-all duration-200 relative group"
-                >
-                  {item.label}
-                  <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#D72626] transition-all duration-300 scale-x-0 group-hover:scale-x-100" />
-                </button>
-              ))}
+              {menuItems.map((item) => {
+                if (item.isDropdown) {
+                  return (
+                    <div
+                      key={item.id}
+                      className="relative"
+                      onMouseEnter={() => setCompanyDropdownOpen(true)}
+                      onMouseLeave={() => setCompanyDropdownOpen(false)}
+                    >
+                      <button
+                        onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
+                        className={`px-2 py-2 text-[10px] 2xl:text-[11px] font-bold uppercase tracking-[0.12em] 2xl:tracking-[0.15em] transition-all duration-200 relative group flex items-center gap-1 ${
+                          isCompanyActive
+                            ? 'text-[#D72626] dark:text-[#D72626]'
+                            : 'text-neutral-800 dark:text-white hover:text-[#D72626] dark:hover:text-[#D72626]'
+                        }`}
+                      >
+                        <span>{item.label}</span>
+                        <ChevronDown size={13} className={`transition-transform duration-200 ${companyDropdownOpen ? 'rotate-180 text-[#D72626]' : 'text-neutral-400'}`} />
+                        <span className={`absolute bottom-0 left-2 right-2 h-0.5 bg-[#D72626] transition-all duration-300 ${
+                          isCompanyActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                        }`} />
+                      </button>
+
+                      {/* Dropdown Menu Overlay */}
+                      <AnimatePresence>
+                        {companyDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute top-full left-0 mt-1 w-80 bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800/80 rounded-2xl shadow-2xl p-2 z-50"
+                          >
+                            <div className="space-y-1">
+                              {item.children?.map((sub) => {
+                                const IconComp = sub.icon;
+                                const isSubActive = pathname === sub.path;
+                                return (
+                                  <button
+                                    key={sub.path}
+                                    onClick={() => handleNavigate(sub.path)}
+                                    className={`w-full text-left p-3 rounded-xl transition-all duration-150 flex items-start gap-3 group/sub ${
+                                      isSubActive
+                                        ? 'bg-red-50 dark:bg-red-950/40 text-[#D72626]'
+                                        : 'hover:bg-neutral-100 dark:hover:bg-neutral-800/70 text-neutral-800 dark:text-neutral-200'
+                                    }`}
+                                  >
+                                    <div className={`p-2 rounded-lg transition-colors ${
+                                      isSubActive
+                                        ? 'bg-[#D72626] text-white'
+                                        : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 group-hover/sub:bg-[#D72626] group-hover/sub:text-white'
+                                    }`}>
+                                      <IconComp size={16} />
+                                    </div>
+                                    <div>
+                                      <div className={`text-xs font-bold transition-colors ${
+                                        isSubActive ? 'text-[#D72626]' : 'text-neutral-900 dark:text-white group-hover/sub:text-[#D72626]'
+                                      }`}>
+                                        {sub.label}
+                                      </div>
+                                      <div className="text-[11px] text-neutral-500 dark:text-neutral-400 font-normal leading-tight mt-0.5">
+                                        {sub.desc}
+                                      </div>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                }
+
+                const isActive = item.path === '/' ? pathname === '/' : pathname.startsWith(item.path || '');
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavigate(item.path || '/')}
+                    className={`px-2 py-2 text-[10px] 2xl:text-[11px] font-bold uppercase tracking-[0.12em] 2xl:tracking-[0.15em] transition-all duration-200 relative group ${
+                      isActive
+                        ? 'text-[#D72626] dark:text-[#D72626]'
+                        : 'text-neutral-800 dark:text-white hover:text-[#D72626] dark:hover:text-[#D72626]'
+                    }`}
+                  >
+                    {item.label}
+                    <span className={`absolute bottom-0 left-2 right-2 h-0.5 bg-[#D72626] transition-all duration-300 ${
+                      isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                    }`} />
+                  </button>
+                );
+              })}
             </div>
 
             {/* Action Buttons Right */}
@@ -284,15 +394,66 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="xl:hidden bg-white dark:bg-neutral-950 border-t border-neutral-200 dark:border-neutral-800 overflow-hidden"
             >
               <div className="px-4 pt-2 pb-6 space-y-1">
-                {menuItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleScroll(item.id)}
-                    className="block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium text-neutral-800 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-900 hover:text-[#D72626] dark:hover:text-[#D72626] transition-colors"
-                  >
-                    {item.label}
-                  </button>
-                ))}
+                {menuItems.map((item) => {
+                  if (item.isDropdown) {
+                    return (
+                      <div key={item.id} className="space-y-1">
+                        <button
+                          onClick={() => setMobileCompanyOpen(!mobileCompanyOpen)}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                            isCompanyActive
+                              ? 'text-[#D72626] font-bold'
+                              : 'text-neutral-800 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-900'
+                          }`}
+                        >
+                          <span>{item.label}</span>
+                          <ChevronDown size={16} className={`transition-transform duration-200 ${mobileCompanyOpen ? 'rotate-180 text-[#D72626]' : 'text-neutral-400'}`} />
+                        </button>
+
+                        <AnimatePresence>
+                          {mobileCompanyOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="ml-3 pl-3 border-l border-neutral-200 dark:border-neutral-800 space-y-1 overflow-hidden"
+                            >
+                              {item.children?.map((sub) => (
+                                <button
+                                  key={sub.path}
+                                  onClick={() => handleNavigate(sub.path)}
+                                  className={`block w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                                    pathname === sub.path
+                                      ? 'text-[#D72626] font-bold bg-red-50 dark:bg-red-950/30'
+                                      : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-900'
+                                  }`}
+                                >
+                                  {sub.label}
+                                </button>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  }
+
+                  const isActive = item.path === '/' ? pathname === '/' : pathname.startsWith(item.path || '');
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavigate(item.path || '/')}
+                      className={`block w-full text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'text-[#D72626] font-bold bg-red-50 dark:bg-red-950/30'
+                          : 'text-neutral-800 dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-900 hover:text-[#D72626] dark:hover:text-[#D72626]'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
 
                 <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 grid grid-cols-2 gap-2">
                   <button
@@ -373,7 +534,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         key={p.id}
                         onClick={() => {
                           setSearchOpen(false);
-                          handleScroll('products');
+                          handleNavigate('/products');
                         }}
                         className="flex items-center p-2.5 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors gap-4"
                       >
