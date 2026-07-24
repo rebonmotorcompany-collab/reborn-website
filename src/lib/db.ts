@@ -5,7 +5,11 @@ function createPrismaClient() {
   const dbUrl = process.env.DATABASE_URL
   if (dbUrl) {
     try {
-      const adapter = new PrismaMariaDb(dbUrl)
+      const adapter = new PrismaMariaDb(dbUrl, {
+        connectionLimit: 10,
+        connectTimeout: 10000,
+        acquireTimeout: 10000,
+      })
       return new PrismaClient({
         adapter,
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],

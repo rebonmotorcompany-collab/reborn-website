@@ -41,15 +41,20 @@ if (missing.length > 0) {
 
 // ─── Server Configuration ──────────────────────────────────────────────────────
 const dev = NODE_ENV !== 'production';
-const hostname = process.env.HOSTNAME || '127.0.0.1';
-const port = parseInt(process.env.PORT, 10) || 3000;
+const rawPort = process.env.PORT;
+const port = rawPort ? (isNaN(Number(rawPort)) ? rawPort : parseInt(rawPort, 10)) : 3000;
+const hostname = process.env.HOSTNAME || '0.0.0.0';
 
 // ─── Next.js App ──────────────────────────────────────────────────────────────
-const app = next({ dev, hostname, port });
+const app = next({
+  dev,
+  hostname: typeof port === 'number' ? hostname : undefined,
+  port: typeof port === 'number' ? port : undefined,
+});
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  createServer(async (req, res) => {
+  const server = createServer(async (req, res) => {
     try {
       await handle(req, res);
     } catch (err) {
@@ -57,12 +62,20 @@ app.prepare().then(() => {
       res.statusCode = 500;
       res.end('internal server error');
     }
-  })
-    .once('error', (err) => {
-      console.error(err);
-      process.exit(1);
-    })
-    .listen(port, () => {
+  });
+
+  server.once('error', (err) => {
+    console.error('Server error:', err);
+    process.exit(1);
+  });
+
+  if (typeof port === 'string') {
+    server.listen(port, () => {
+      console.log(`🚀 Server listening on socket ${port} [${NODE_ENV}]`);
+    });
+  } else {
+    server.listen(port, hostname, () => {
       console.log(`🚀 Server running on http://${hostname}:${port} [${NODE_ENV}]`);
     });
+  }
 });
