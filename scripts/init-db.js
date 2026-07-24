@@ -1,6 +1,13 @@
 import { PrismaClient } from '@prisma/client'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
-const prisma = new PrismaClient()
+let dbUrl = process.env.DATABASE_URL || ''
+if (dbUrl.includes('@31.97.208.32')) {
+  dbUrl = dbUrl.replace('@31.97.208.32', '@127.0.0.1')
+}
+
+const adapter = dbUrl ? new PrismaMariaDb(dbUrl) : undefined
+const prisma = new PrismaClient(adapter ? { adapter } : {})
 
 async function initDatabase() {
   console.log('🔄 [Hostinger DB Init] Ensuring MySQL tables & initial seed data...')

@@ -2,8 +2,12 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
 function createPrismaClient() {
-  const dbUrl = process.env.DATABASE_URL
+  let dbUrl = process.env.DATABASE_URL
   if (dbUrl) {
+    // Hostinger local loopback optimization: replace public IP with 127.0.0.1 to avoid firewall timeouts
+    if (dbUrl.includes('@31.97.208.32')) {
+      dbUrl = dbUrl.replace('@31.97.208.32', '@127.0.0.1')
+    }
     try {
       const adapter = new PrismaMariaDb(dbUrl)
       return new PrismaClient({
@@ -11,7 +15,7 @@ function createPrismaClient() {
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
       })
     } catch (err) {
-      console.warn('⚠️ MariaDB pool adapter initialization warning, using standard client fallback:', err)
+      console.error('⚠️ MariaDB pool adapter initialization error:', err)
     }
   }
 
