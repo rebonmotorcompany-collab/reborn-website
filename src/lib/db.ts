@@ -1,13 +1,11 @@
 import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-import mariadb from 'mariadb'
 
 function createPrismaClient() {
   const dbUrl = process.env.DATABASE_URL
   if (dbUrl) {
     try {
-      const pool = mariadb.createPool(dbUrl)
-      const adapter = new PrismaMariaDb(pool)
+      const adapter = new PrismaMariaDb(dbUrl)
       return new PrismaClient({
         adapter,
         log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
