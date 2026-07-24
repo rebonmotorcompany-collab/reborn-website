@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development node server.js",
     "prebuild": "node -e \"const fs = require('fs'); fs.rmSync('public/_next', { recursive: true, force: true });\"",
-    "build": "prisma generate && next build",
-    "build:hostinger": "prisma generate && next build --webpack && node copy-static.js",
+    "build": "prisma generate && node scripts/init-db.js && next build",
+    "build:hostinger": "prisma generate && node scripts/init-db.js && next build --webpack && node copy-static.js",
     "postbuild": "node copy-static.js",
     "postinstall": "prisma generate",
     "start": "node server.js",
@@ -15,7 +15,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push --accept-data-loss=false",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.2",
